@@ -1,0 +1,34 @@
++++++++++++++++++++++++++++++++++++++++++++++
+v1.0.5.1
+Bugfix - fixed a corner-case  where binary files dumped
+after loading paired-end fastq (using --pe_list) were 
+missing some nodes. Could manifest after loading 
+binaries and trying to traverse the graph. 
+
+Recommend users upgrade to this version.
+
+Test results:
+All unit tests pass, with valgrind also.
+See latest_test_results for details.
+
+Open issues:
+ - does not compile for Intel compiler on IA64.
+
+For internal use: matches changeset 403:514335d0e73d
+
+April 19th 2011
+
++++++++++++++++++++++++++++++++++++++++++++++
+v1.0.5
+First public/post-beta release of cortex_var.
+Supports: 
+ - arbitrary kmer
+ - removal of PCR duplicates, cutting reads at low quality bases or homopolymers on the fly
+ - de novo assembly of variants
+ - aligning of reads/references to population graph
+See manual for details!
+
+Open issues:
+ - does not compile for Intel compiler on IA64. 
+
+April 8th 2011
