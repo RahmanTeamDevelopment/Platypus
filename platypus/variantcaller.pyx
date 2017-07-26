@@ -8,7 +8,7 @@ import time
 
 import platypus.vcf
 import platypus.cpopulation
-cimport platypus.fastafile
+cimport platypus.cwindow
 
 from operator import attrgetter
 
@@ -151,7 +151,7 @@ cdef callVariantsInSmallRegion(chrom, int start, int end, list bamFiles, FastaFi
                 logger.info("There are %s variants. Filtering variants with EM method" %(nVar))
                 varHaps = [refHaplotype] + [Haplotype(chrom, windowStart, windowEnd, (v,), refFile, options.rlen) for v in variants]
                 varGens = generateAllGenotypesFromHaplotypeList(options.ploidy, varHaps)
-                caller = cpopulation.Caller(options)
+                caller = platypus.cpopulation.Caller(options)
                 caller.setup(varHaps, varGens, options.nInd, options.ploidy, options.verbosity, readBuffers)
                 call = caller.call()
                 varsByPost = []
@@ -166,7 +166,7 @@ cdef callVariantsInSmallRegion(chrom, int start, int end, list bamFiles, FastaFi
                 thisWindow['variants'] = variants
 
             # Create haplotype list using all data from all samples. Always consider the reference haplotype.
-            allVarHaplotypes = cwindow.getHaplotypesInWindow(thisWindow, nReadsThisWindow, refFile, options.ploidy, options.maxReads, options.minMapQual, options.minBaseQual, options.maxHaplotypes, options.maxVariants, options.rlen)
+            allVarHaplotypes = platypus.cwindow.getHaplotypesInWindow(thisWindow, nReadsThisWindow, refFile, options.ploidy, options.maxReads, options.minMapQual, options.minBaseQual, options.maxHaplotypes, options.maxVariants, options.rlen)
             allUniqueHaplotypes = list(set([refHaplotype] + allVarHaplotypes))
             nUniqueHaplotypes = len(allUniqueHaplotypes)
 
@@ -181,7 +181,7 @@ cdef callVariantsInSmallRegion(chrom, int start, int end, list bamFiles, FastaFi
                 logger.debug("No haplotypes to check in window %s" %(thisWindow))
                 continue
 
-            caller = cpopulation.Caller(options)
+            caller = platypus.cpopulation.Caller(options)
             caller.setup(allUniqueHaplotypes, allGenotypes, options.nInd, options.ploidy, options.verbosity, readBuffers)
             call = caller.call()
             outputCallToVCF(call, vcf, samples, samples, refFile, outputFile, options)
@@ -210,7 +210,7 @@ def generateGenotypesAndVariantsInAllRegionsAndHandleExceptions(region, fileName
 
     # Cache reference sequence for this region. This should result in a substantial speed-up for
     # the fastafile.getSequence function.
-    cdef FastaFile refFile = platypus.fastafile.FastaFile(options.refFile, options.refFile + ".fai")
+    cdef FastaFile refFile = FastaFile(options.refFile, options.refFile + ".fai")
     refFile.setCacheSequence(chromosome, start-25000, end+25000)
 
     outputFile = open(fileName, 'wb')

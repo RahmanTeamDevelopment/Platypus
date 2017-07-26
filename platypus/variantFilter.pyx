@@ -26,8 +26,8 @@ cdef list filterVariants(
     No additional filtering is done at this step.
     """
     cdef Variant v
-    cdef Variant lastVariant
-    cdef Variant newVcfVariant
+    cdef Variant lastVariant = None
+    cdef Variant newVcfVariant = None
     cdef list filteredVariants = []
     cdef int support = 0
     cdef int lengthChange = 0
