@@ -1,34 +1,63 @@
+HEADERS := platypus/*.pxd
+PYX := platypus/*.pyx
+PY := platypus/*.py
+FLAKE8=flake8 --max-line-length=120
+SCRIPTS=bin/platypus
 
-PYTHON := python2.6
-HEADERS := src/cython/cgenotype.pxd src/cython/cfilter.pxd
-SOURCES := src/cython/cpopulation.pyx src/cython/cgenotype.pyx src/cython/cwindow.pyx src/cython/cfilter.pyx
+flake8:
+	${FLAKE8} ${PY} test
 
-all: ${HEADERS} ${SOURCES} cortex
-	echo 'Building Platypus'
-	echo 'C Libraries will be installed to ' ${PLATYPUS}
-	cd src/cython; ${PYTHON} setup.py install --prefix=${PLATYPUS}
-	cd src/python; ${PYTHON} setup.py install --prefix=${PLATYPUS}
+cleanAll: clean cleanDocs
+	rm -rf env
 
-platypus: ${HEADERS} ${SOURCES}
-	echo 'Building Platypus'
-	echo 'C Libraries will be installed to ' ${PLATYPUS}
-	cd src/cython; ${PYTHON} setup.py install --prefix=${PLATYPUS}
-	cd src/python; ${PYTHON} setup.py install --prefix=${PLATYPUS}
+clean: cleanDocs
+	pip uninstall -y Platypus
+	find . -name __pycache__ | xargs rm -rf
 
-cortex:
-	echo 'Building Cortex'
-	cd src/cortex_var; make cortex_var 32_BITS=1
+cleanDocs:
+	cd docs/sphinx; make clean
 
-clean:
-	cd src/cortex_var; make clean
-	cd src/cython; rm -rf build; rm cpopulation.c cgenotype.c cwindow.c cfilter.c
-	echo ${PLATYPUS}
-	rm ${PLATYPUS}/lib/${PYTHON}/site-packages/cpopulation.so
-	rm ${PLATYPUS}/lib/${PYTHON}/site-packages/cgenotype.so
-	rm ${PLATYPUS}/lib/${PYTHON}/site-packages/cwindow.so
-	rm ${PLATYPUS}/lib/${PYTHON}/site-packages/cfilter.so
-	rm ${PLATYPUS}/lib/${PYTHON}/site-packages/variantcaller.so
-	rm ${PLATYPUS}/lib/${PYTHON}/site-packages/variantFilter.so
-	rm ${PLATYPUS}/lib/${PYTHON}/site-packages/platypusexceptions.py
-	rm ${PLATYPUS}/lib/${PYTHON}/site-packages/window.py
-	rm ${PLATYPUS}/lib/${PYTHON}/site-packages/variantutils.py
+.PHONY:
+pdfdocs: docs/sphinx/*.rst
+	cd docs/sphinx; make latexpdf
+
+.PHONY:
+docs: docs/sphinx/*.rst
+	cd docs/sphinx; make html;
+	cp -rf docs/sphinx/_build/html/* docs/
+
+wheels:
+	pip wheel .
+
+env/bin/platypus: ${HEADERS} ${PYX} ${PY} ${SCRIPTS}
+	./install.sh
+	touch env/bin/platypus
+
+.PHONY:
+install: env/bin/platypus ;
+
+unittest: install
+	@echo ''
+	@echo 'Running unit tests'
+	@echo ''
+	@pytest test/unit
+
+acceptancetest: install
+	@echo ''
+	@echo 'Running acceptance tests'
+	@echo ''
+	@pytest test/acceptance
+
+smoketest: install
+	@echo ''
+	@echo 'Running smoke tests'
+	@echo ''
+	./test/smoke/check_installation_succeeded.bash
+
+test: flake8 smoketest unittest acceptancetest
+	@echo ''
+	@echo 'Finished running all tests'
+	@echo ''
+
+test_coverage:
+	pytest --cov=env/lib/python2.7/site-packages/platypus test
