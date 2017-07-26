@@ -1,13 +1,8 @@
-import cython
 
-cimport fastafile
-cimport bamfileutils
-cimport samtoolsWrapper
-cimport variant
+from platypus.samtoolsWrapper cimport cAlignedRead
+from platypus.fastafile cimport FastaFile
+from platypus.variant cimport Variant
 
-from samtoolsWrapper cimport cAlignedRead
-from fastafile cimport FastaFile
-from variant cimport Variant
 
 cdef class Haplotype:
     cdef bytes refName
@@ -28,7 +23,14 @@ cdef class Haplotype:
     cdef int useIndelErrorModel
     cdef bytes localGapOpenQ
     cdef char* cLocalGapOpenQ
-    cdef double* alignReads(self, int individualIndex, cAlignedRead** start, cAlignedRead** end, int nReads, int nIndividuals)
+    cdef double* alignReads(
+            self,
+            int individualIndex,
+            cAlignedRead** start,
+            cAlignedRead** end,
+            int nReads,
+            int nIndividuals
+    )
     cdef int valid(self)
     cdef char* getReferenceSequence(self, prefix=*)
     cdef char* getMutatedSequence(self)
@@ -39,6 +41,12 @@ cdef class Haplotype:
     cdef int homopolymerLengthForOneVariant(self, Variant variant)
     cdef list homopolymerLengths(self)
 
-cdef Variant convertVariantToStandardFormat(Variant variant, FastaFile refFile, int maxReadLength)
+
+cdef Variant convertVariantToStandardFormat(
+        Variant variant,
+        FastaFile refFile,
+        int maxReadLength
+)
+
 cdef double binomial(int x, int size, double prob)
 cdef double logFactorial(int x)

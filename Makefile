@@ -4,9 +4,6 @@ PY := platypus/*.py
 FLAKE8=flake8 --max-line-length=120
 SCRIPTS=bin/platypus
 
-flake8:
-	${FLAKE8} ${PY} test
-
 cleanAll: clean cleanDocs
 	rm -rf env
 
@@ -61,3 +58,6 @@ test: flake8 smoketest unittest acceptancetest
 
 test_coverage:
 	pytest --cov=env/lib/python2.7/site-packages/platypus test
+
+flake8:
+	${FLAKE8} ${PY} test

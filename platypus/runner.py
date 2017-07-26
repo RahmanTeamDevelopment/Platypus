@@ -7,15 +7,14 @@ from __future__ import division
 
 import logging
 import bamfileutils
-import pyvcf
 import multiprocessing
 import variantcaller
 import extendedoptparse
 import os
 
+
 logger = logging.getLogger("Log")
 
-###################################################################################################
 
 def chromAndPosSort(x, y):
     """
@@ -30,7 +29,6 @@ def chromAndPosSort(x, y):
 
     return cmp(xChrom, yChrom) or cmp(xStart, yStart)
 
-###################################################################################################
 
 def printRegions(args):
     """
@@ -51,7 +49,6 @@ def printRegions(args):
     for region in regions:
         print "%s:%s-%s" %(region[0],region[1],region[2])
 
-###################################################################################################
 
 def runVariantCaller(options):
     """
@@ -61,10 +58,6 @@ def runVariantCaller(options):
     that window. For N P-ploid individuals, there are NP haplotypes to choose and we calculate
     the collection of NP haplotypes which maximise the likelihood.
     """
-    # Set up basic logging
-    import logging
-    import logging.handlers
-
     formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
 
     log = logging.getLogger('Log')

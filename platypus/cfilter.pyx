@@ -1,29 +1,9 @@
-#cython: boundscheck=False
-#cython: cdivision=True
-#cython: nonecheck=False
-
-"""
-Fast version of variant classification function.
-To profile, put "# cython: profile=True" at the top of this file.
-"""
-
-import cython
-
-cimport chaplotype
-cimport fastafile
-cimport variant
-cimport bamfileutils
-cimport samtoolsWrapper
-
 import logging
 
-from samtoolsWrapper cimport AlignedRead
 from fastafile cimport FastaFile
-from chaplotype cimport Haplotype
-from variant cimport Variant
+from platypus.chaplotype cimport Haplotype
 from itertools import combinations
 
-###################################################################################################
 
 cdef extern from "stdlib.h":
     void free(void *)
@@ -31,15 +11,14 @@ cdef extern from "stdlib.h":
     void *calloc(size_t,size_t)
     void *realloc(void *,size_t)
 
+
 cdef extern from "math.h":
     double log(double)
     int pow(int, int)
 
-###################################################################################################
 
 logger = logging.getLogger("Log")
 
-###################################################################################################
 
 cdef list getFilteredHaplotypes(Haplotype refHaplotype, list variants, int nVars, FastaFile refFile, str windowChr, int windowStart, int windowEnd, int maxHaplotypes, int maxReadLength):
     """
@@ -97,5 +76,3 @@ cdef list getFilteredHaplotypes(Haplotype refHaplotype, list variants, int nVars
         else:
             logger.warning("Too many haplotypes (%s when limit is %s). Skipping this window." %(nPossHaplotypes, maxHaplotypes))
             return []
-
-###################################################################################################

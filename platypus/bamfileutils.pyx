@@ -1,7 +1,3 @@
-#cython: boundscheck=False
-#cython: cdivision=True
-#cython: nonecheck=False
-
 """
 Utilities for handling multiple bam files.
 """
@@ -10,19 +6,16 @@ from __future__ import division
 
 import logging
 import os
-import cython
 
-cimport samtoolsWrapper
-cimport fastafile
-cimport cython
+cimport platypus.samtoolsWrapper
 
 from heapq import heappush,heappop
 from fastafile cimport FastaFile
-from samtoolsWrapper cimport AlignedRead,Samfile
+from platypus.samtoolsWrapper cimport AlignedRead,Samfile
+
 
 logger = logging.getLogger("Log")
 
-###################################################################################################
 
 cdef class BamFileIterator(object):
     """
@@ -51,7 +44,6 @@ cdef class BamFileIterator(object):
         cdef AlignedRead theRead = self.iterator.next()
         self.currentValue = theRead
 
-###################################################################################################
 
 cdef class MultiBamFileIterator(object):
     """
@@ -120,7 +112,6 @@ cdef class MultiBamFileIterator(object):
         """
         return self
 
-###################################################################################################
 
 cdef class MultiBamFileReader(object):
     """
@@ -139,7 +130,7 @@ cdef class MultiBamFileReader(object):
 
         for f in fileNames:
             try:
-                self.files.append(samtoolsWrapper.Samfile(f, 'rb'))
+                self.files.append(platypus.samtoolsWrapper.Samfile(f, 'rb'))
             except Exception, e:
                 logger.warning("Could not open file %s. Data from this file will not be used" %(f))
                 continue
@@ -167,7 +158,6 @@ cdef class MultiBamFileReader(object):
         """
         return MultiBamFileIterator(self.files, region, start, end)
 
-###################################################################################################
 
 def getRegions(options):
     """
@@ -176,7 +166,7 @@ def getRegions(options):
     """
     cdef FastaFile refFile = FastaFile(options.refFile, options.refFile + ".fai", parseNCBI = options.parseNCBI)
     fileName = options.bamFiles[0]
-    file = samtoolsWrapper.Samfile(fileName, "rb")
+    file = platypus.samtoolsWrapper.Samfile(fileName, "rb")
     finalRegions = []
     regions = []
 
@@ -273,7 +263,6 @@ def getRegions(options):
     logger.debug("The following genomic regions will be searched: %s" %(finalRegions))
     return finalRegions
 
-###################################################################################################
 
 def cigarJimKent(AlignedRead read, int g_start):
     """
@@ -331,7 +320,6 @@ def cigarJimKent(AlignedRead read, int g_start):
 
     return read_blockstart, genome_blockstart, blocklens, inslens
 
-###################################################################################################
 
 def getReadInfo(Samfile bamFile, AlignedRead read):
     """
@@ -365,4 +353,3 @@ def getReadInfo(Samfile bamFile, AlignedRead read):
 
     return (thisReadGroup,chrom,flag,pos,isize,seq,qual,label)
 
-###################################################################################################

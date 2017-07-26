@@ -1,39 +1,21 @@
-#cython: boundscheck=False
-#cython: cdivision=True
-#cython: nonecheck=False
-
-"""
-module containing various classes and functions for use in generating
-and processing haplotypes.
-"""
-
 from __future__ import division
 
-import cython
 import logging
 import math
 
-cimport cython
-cimport variant
-cimport calign
-cimport fastafile
-cimport bamfileutils
-cimport samtoolsWrapper
-cimport cerrormodel
+cimport platypus.cerrormodel
 
-from calign cimport alignNoTraceback
-from fastafile cimport FastaFile
-from samtoolsWrapper cimport AlignedRead
-from samtoolsWrapper cimport cAlignedRead
-from variant cimport Variant
+from platypus.calign cimport alignNoTraceback
+from platypus.fastafile cimport FastaFile
+from platypus.samtoolsWrapper cimport cAlignedRead
+from platypus.variant cimport Variant
 
-###################################################################################################
 
 logger = logging.getLogger("Log")
 
-###################################################################################################
 
 cdef double PI = math.pi
+
 
 cdef extern from "math.h":
     double exp(double)
@@ -43,6 +25,7 @@ cdef extern from "math.h":
     double sqrt(double)
     double pow(double, double)
 
+
 cdef extern from "stdlib.h":
     void free(void *)
     void *malloc(size_t)
@@ -50,15 +33,12 @@ cdef extern from "stdlib.h":
     void *realloc(void *,size_t)
     void *memset(void *buffer, int ch, size_t count )
 
-###################################################################################################
 
-# Some nasty global variables
 cdef list per_base_indel_errors = [2.9e-5, 2.9e-5, 2.9e-5, 2.9e-5, 4.3e-5, 1.1e-4, 2.4e-4, 5.7e-4, 1.0e-3, 1.4e-3] + [ 1.4e-3 + 4.3e-4*(n-10) for n in range(11,50) ]
-cdef bytes homopolq = ''.join([chr(int(33.5 + 10*log( (idx+1)*q )/log(0.1) )) for idx,q in enumerate(per_base_indel_errors)])
+cdef bytes homopolq = bytes(''.join([chr(int(33.5 + 10*log( (idx+1)*q )/log(0.1) )) for idx,q in enumerate(per_base_indel_errors)]))
 cdef dict indel_error_model = {'nonrepetitive':'X',
                                1:'NKJHFA=854210/.-,,+**))(((\'\'\'&&&%%%$$$$#####"""""'}
 
-###################################################################################################
 
 cdef class Haplotype:
     """
@@ -98,8 +78,7 @@ cdef class Haplotype:
         self.hapLen = len(self.cHaplotypeSequence)
 
         if self.useIndelErrorModel:
-            #self.localGapOpenQ = bytes("I"*len(self.haplotypeSequence))
-            self.localGapOpenQ = cerrormodel.annotate_sequence(self.haplotypeSequence, self.indelErrorModel, 0, 24)
+            self.localGapOpenQ = platypus.cerrormodel.annotate_sequence(self.haplotypeSequence, self.indelErrorModel, 0, 24)
             self.cLocalGapOpenQ = self.localGapOpenQ
 
         self.cHomopolQ = homopolq
@@ -369,7 +348,7 @@ cdef class Haplotype:
                 if currentPos < self.endPos:
                     bitsOfMutatedSeq.append(self.refFile.getSequence(self.refName, currentPos, self.endPos) )
 
-                self.haplotypeSequence = ''.join(bitsOfMutatedSeq)
+                self.haplotypeSequence = bytes(''.join(bitsOfMutatedSeq))
 
         return self.haplotypeSequence
 

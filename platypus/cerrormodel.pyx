@@ -1,15 +1,13 @@
-#cython: boundscheck=False
-#cython: cdivision=True
-#cython: nonecheck=False
-
 from libc.stdlib cimport malloc, free
 
-# define the minimum tandem length defined in the model.
+
 cdef int MINIMUM_TANDEM_LENGTH = 4
 cdef dict repunit_dict = None
 
+
 cdef extern from "tandem.h":
     void annotate( char* sequence, char* sizes, char* displacements, int length)
+
 
 cdef tuple calculate_size_and_displacement( bytes sequence ):
     cdef char* csequence = sequence
@@ -20,6 +18,7 @@ cdef tuple calculate_size_and_displacement( bytes sequence ):
     cdef bytes sizes = csizes
     cdef bytes displacements = cdisplacements
     return (sizes, displacements)
+
 
 cdef bytes normalize_repunit_fast( bytes unit ):
     global repunit_dict
@@ -46,24 +45,25 @@ cdef bytes normalize_repunit_fast( bytes unit ):
     cdef bytes n6
     if repunit_dict == None:
         repunit_dict = {}
-        for n1 in 'ACGT':
-            for n2 in 'ACGT':
-                for n3 in 'ACGT':
+        for n1 in bytes('ACGT'):
+            for n2 in bytes('ACGT'):
+                for n3 in bytes('ACGT'):
                     repunit_dict[n1+n2+n3] = normalize_repunit(n1+n2+n3)
-                    for n4 in 'ACGT':
+                    for n4 in bytes('ACGT'):
                         repunit_dict[n1+n2+n3+n4] = normalize_repunit(n1+n2+n3+n4)
-                        for n5 in 'ACGT':
+                        for n5 in bytes('ACGT'):
                             repunit_dict[n1+n2+n3+n4+n5] = normalize_repunit(n1+n2+n3+n4+n5)
-                            for n6 in 'ACGT':
+                            for n6 in bytes('ACGT'):
                                 repunit_dict[n1+n2+n3+n4+n5+n6] = normalize_repunit(n1+n2+n3+n4+n5+n6)
     if length <= 6:
         return repunit_dict[unit]
     return normalize_repunit(unit)
 
+
 cdef bytes normalize_repunit( bytes unit ):
     cdef list unit2list = [{'A':'T','T':'A','C':'G','G':'C'}.get(c,'N') for c in unit]
     unit2list.reverse()
-    cdef bytes unit2 = ''.join(unit2list)
+    cdef bytes unit2 = bytes(''.join(bytes(x) for x in unit2list))
     unit2 += unit2
     unit += unit
     cdef int length = len(unit)
@@ -71,6 +71,7 @@ cdef bytes normalize_repunit( bytes unit ):
     if normunit[-1] == '-':
         normunit = normunit[:-1].lower()
     return normunit
+
 
 cdef tuple try_microsat( char* seq, int seqlen, int start, int replen, int direction ):
     cdef int minpos = start
@@ -87,6 +88,7 @@ cdef tuple try_microsat( char* seq, int seqlen, int start, int replen, int direc
         return 1, character, start
     return length, seq[minpos+1:minpos+replen+1], min(minpos+1,minpos+1+replen*direction)
 
+
 cdef microsattelite( char* seq, int seqlen, int start, int tandem ):
     cdef tuple maxlen = (-1,"",-1)
     cdef tuple result
@@ -101,9 +103,11 @@ cdef microsattelite( char* seq, int seqlen, int start, int tandem ):
             maxlen = result
     return maxlen
 
+
 def get_annotation(seq, pos, tandem):
     t, repunitT, repstart = microsattelite( seq, len(seq), pos, tandem )
     return t,normalize_repunit(repunitT),repstart
+
 
 def add_tandem(pos, tandemlen, tandemunit, indelq, indel_q_data, output_base=0):
     """ Adds gap opening penalties in string indelq, for the tandem repeat described by output.
@@ -126,6 +130,7 @@ def add_tandem(pos, tandemlen, tandemunit, indelq, indel_q_data, output_base=0):
         q = chr(ord(qdata[tandemlen-1])-ord('!')+output_base)
     for idx in range(pos, pos+tandemlen):
         indelq[idx] = min(q, indelq[idx])
+
 
 cdef bytes annotate_sequence_slow(sequence, dict indel_q_data, int output_base, int tandem):
     """ Annotates a sequence with the local indel probability (gap opening penalty),
@@ -152,7 +157,8 @@ cdef bytes annotate_sequence_slow(sequence, dict indel_q_data, int output_base, 
             pos += 1
     if oldoutput[0] != -1:
         add_tandem(oldoutput[0], oldoutput[1], oldoutput[2], indelq, indel_q_data, output_base = output_base)
-    return ''.join(indelq)
+    return bytes(''.join(bytes(x) for x in indelq))
+
 
 cdef bytes annotate_sequence(sequence, dict indel_q_data, int output_base, int tandem):
     """ Annotates a sequence with the local indel probability (gap opening penalty),
@@ -201,7 +207,7 @@ cdef bytes annotate_sequence(sequence, dict indel_q_data, int output_base, int t
         add_tandem( oldoutputpos, oldoutputlen, oldoutputunit, indelq, indel_q_data, output_base = output_base)
 
     # return result
-    return ''.join(indelq)
+    return bytes(''.join(bytes(x) for x in indelq))
 
 
 cpdef testAnnotate():

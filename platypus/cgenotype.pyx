@@ -1,40 +1,21 @@
-#cython: boundscheck=False
-#cython: cdivision=True
-#cython: nonecheck=False
-
-"""
-Fast implementation of the Genotype class.
-To profile, put "# cython: profile=True" at the top of this file.
-"""
-
 from __future__ import division
 import logging
-import cython
-cimport cython
 
-cimport bamfileutils
-cimport chaplotype
-cimport samtoolsWrapper
+from platypus.samtoolsWrapper cimport AlignedRead
+from platypus.chaplotype cimport Haplotype
 
-from samtoolsWrapper cimport AlignedRead
-from chaplotype cimport Haplotype
-
-###################################################################################################
 
 logger = logging.getLogger("Log")
 
-###################################################################################################
 
 cdef double mLTOT = -0.23025850929940459    # Minus log ten over ten
 
-###################################################################################################
 
 cdef extern from "math.h":
     double exp(double)
     double log(double)
     double log10(double)
 
-###################################################################################################
 
 cdef class DiploidGenotype(object):
     """
@@ -81,7 +62,6 @@ cdef class DiploidGenotype(object):
 
         return likelihood
 
-###################################################################################################
 
 cdef list generateAllGenotypesFromHaplotypeList(int ploidy, list haplotypes):
     """
@@ -119,5 +99,3 @@ cdef list generateAllGenotypesFromHaplotypeList(int ploidy, list haplotypes):
 
     else:
         raise StandardError, "Genotype generator can not currently cope with ploidy > 2"
-
-###################################################################################################
