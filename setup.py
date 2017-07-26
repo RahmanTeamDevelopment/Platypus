@@ -1,39 +1,147 @@
-import os, sys, glob
+import glob
+import os
 
-from distutils.core import setup
-from distutils.extension import Extension
-from Cython.Distutils import build_ext as build_pyx
+from setuptools import setup, Extension
+from Cython.Distutils import build_ext
+from Cython.Build import cythonize
 
-extModules = []
+include_dirs = [
+    "platypus",
+    "platypus/c",
+    "platypus/c/samtools"
+]
 
-extModules.append(Extension(name='samtoolsWrapper', sources=['samtoolsWrapper.pyx', 'pysam_util.c'] + glob.glob(os.path.join("samtools", "*.c")), include_dirs=["samtools", "./"],libraries=['z'], language='c', extra_compile_args=["-D_LARGEFILE64_SOURCE", "-D_FILE_OFFSET_BITS=64", "-msse2", "-msse3", "-funroll-loops"]))
+cython_directives = {
+    "boundscheck": False,
+    "nonecheck" : False,
+    "cdivision" : True,
+    "profile" : False,
+    "initializedcheck" : False,
+    "wraparound" : True
+}
 
-extModules.append(Extension(name='fastafile', sources=['fastafile.pyx'], include_dirs=["samtools", "./"],  extra_compile_args=["-msse2", "-msse3", "-funroll-loops"]))
+samtools_source_files = glob.glob(
+    os.path.join("platypus", "c", "samtools", "*.c")
+)
 
-extModules.append(Extension(name='bamfileutils', sources=['bamfileutils.pyx', 'samtoolsWrapper.pxd'], include_dirs=["samtools", "./"], extra_compile_args=["-msse2", "-msse3", "-funroll-loops"]))
+optimisation_args = [
+    "-msse2",
+    "-msse3",
+    "-funroll-loops"
+]
 
-extModules.append(Extension(name='variant', sources=['variant.pyx', 'samtoolsWrapper.pxd'], include_dirs=["samtools", "./"], extra_compile_args=["-msse2", "-msse3", "-funroll-loops"]))
+large_file_opts = [
+    "-D_LARGEFILE64_SOURCE",
+    "-D_FILE_OFFSET_BITS=64"
+]
 
-extModules.append(Extension(name='histogram', sources=['histogram.pyx'], include_dirs=["samtools", "./"], extra_compile_args=["-msse2", "-msse3", "-funroll-loops"]))
+modules = [
+    Extension(
+        name='platypus.samtoolsWrapper',
+        sources=['platypus/samtoolsWrapper.pyx', 'platypus/c/pysam_util.c'] + samtools_source_files,
+        include_dirs=include_dirs,
+        libraries=['z'],
+        language='c',
+        extra_compile_args=large_file_opts + optimisation_args
+    ),
+    Extension(
+        name='platypus.fastafile',
+        sources=['platypus/fastafile.pyx'],
+        include_dirs=include_dirs,
+        extra_compile_args=large_file_opts + optimisation_args
+    ),
+    Extension(
+        name='platypus.bamfileutils',
+        sources=['platypus/bamfileutils.pyx'],
+        include_dirs=include_dirs,
+        extra_compile_args=large_file_opts + optimisation_args
+    ),
+    Extension(
+        name='platypus.variant',
+        sources=['platypus/variant.pyx'],
+        include_dirs=include_dirs,
+        extra_compile_args=large_file_opts + optimisation_args
+    ),
+    Extension(
+        name='platypus.cerrormodel',
+        sources=['platypus/cerrormodel.pyx', 'platypus/c/tandem.c'],
+        include_dirs=include_dirs,
+        language='c',
+        extra_compile_args=large_file_opts + optimisation_args
+    ),
+    Extension(
+        name='platypus.calign',
+        sources=['platypus/calign.pyx', 'platypus/align.c'],
+        include_dirs=include_dirs,
+        extra_compile_args=large_file_opts + optimisation_args
+    ),
+    Extension(
+        name='platypus.chaplotype',
+        sources=['platypus/chaplotype.pyx'],
+        include_dirs=include_dirs,
+        language='c',
+        extra_compile_args=large_file_opts + optimisation_args
+    ),
+    Extension(
+        name='platypus/cgenotype',
+        sources=['platypus/cgenotype.pyx'],
+        include_dirs=include_dirs,
+        extra_compile_args=large_file_opts + optimisation_args
+    ),
+    Extension(
+        name='platypus.cpopulation',
+        sources=['platypus/cpopulation.pyx'],
+        include_dirs=include_dirs,
+        extra_compile_args=large_file_opts + optimisation_args
+    ),
+    Extension(
+        name='platypus.cwindow',
+        sources=['platypus/cwindow.pyx'],
+        include_dirs=include_dirs,
+        extra_compile_args=large_file_opts + optimisation_args
+    ),
+    Extension(
+        name='platypus.cfilter',
+        sources=['platypus/cfilter.pyx'],
+        include_dirs=include_dirs,
+        extra_compile_args=large_file_opts + optimisation_args
+    ),
+    Extension(
+        name='platypus.variantFilter',
+        sources=['platypus/variantFilter.pyx'],
+        include_dirs=include_dirs,
+        extra_compile_args=large_file_opts + optimisation_args
+    ),
+    Extension(
+        name='platypus.variantcaller',
+        sources=['platypus/variantcaller.pyx'],
+        include_dirs=include_dirs,
+        extra_compile_args=large_file_opts + optimisation_args
+    )
+]
 
-extModules.append(Extension(name='cerrormodel', sources=['cerrormodel.pyx', 'tandem.c'], include_dirs=["./"], language='c', extra_compile_args=["-msse2", "-msse3", "-funroll-loops"]))
 
-extModules.append(Extension(name='calign', sources=['calign.pyx', 'align.c', 'samtoolsWrapper.pxd', 'cerrormodel.pxd'], include_dirs=["samtools", "./"], extra_compile_args=["-msse2", "-msse3", "-funroll-loops"]))
-
-extModules.append(Extension(name='chaplotype', sources=['chaplotype.pyx', 'variant.pxd','samtoolsWrapper.pxd', 'calign.pxd'], include_dirs=["samtools", "./"], language='c', extra_compile_args=["-msse2", "-msse3", "-funroll-loops"]))
-
-
-# Set-up and install python modules
-setup(name="CoreUtilsCythonModules", ext_modules=extModules, cmdclass={'build_ext': build_pyx})
-setup(name="filez", py_modules=['filez'])
-setup(name="extendedoptparse", py_modules=['extendedoptparse'])
-
-
-
-from distutils.core import setup
-
-setup(name="window", py_modules=['window'])
-setup(name="variantutils", py_modules=['variantutils'])
-setup(name="platypusexceptions", py_modules=['platypusexceptions'])
-setup(name="extendedoptparse", py_modules=['extendedoptparse'])
-setup(name="runner", py_modules=['runner'])
+setup(
+    name="Platypus",
+    version='0.1.5',
+    description="Small variant calling",
+    url='https://github.com/RahmanTeamDevelopment/Platypus',
+    author='RahmanTeam',
+    author_email='rahmanlab@icr.ac.uk',
+    license='MIT',
+    cmdclass = {'build_ext': build_ext},
+    ext_modules = cythonize(
+        modules,
+        compiler_directives=cython_directives
+    ),
+    packages=[
+        'platypus',
+    ],
+    scripts=[
+        "bin/Platypus.py",
+        "bin/platypus",
+        "test/smoke/check_installation_succeeded.bash",
+    ],
+    zip_safe=False,
+    include_package_data=True
+)

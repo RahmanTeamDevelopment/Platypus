@@ -1,37 +1,22 @@
 #!/usr/bin/python
 
-"""
-Top-level interface to the Platypus tool-set
-"""
-
 from __future__ import division
 
 import sys
-import runner
+import platypus.runner
 
-###################################################################################################
-
-def notImplemented(x):
-    """
-    Print an error message and raise an exception for commands that are not yet
-    implemented.
-    """
-    print "\n\n%s command is not yet implemented\n\n" %(x)
-    sys.exit(0)
-
-###################################################################################################
 
 if __name__ == "__main__":
 
-    possCommands = {}
-    possCommands["callVariants"] = runner.callVariants
-    possCommands["printRegions"] = runner.printRegions
+    commands = {}
+    commands["callVariants"] = platypus.runner.callVariants
+    commands["printRegions"] = platypus.runner.printRegions
 
-    if len(sys.argv) == 1 or sys.argv[1] not in possCommands.keys():
+    if len(sys.argv) == 1 or sys.argv[1] not in commands.keys():
         print "\n\n"
         print "Invalid usage: use Platypus as follows:"
         print "\n"
-        for k in possCommands.keys():
+        for k in commands.keys():
             print "python Platypus.py", k, "[Options]"
         print "\n"
         print "For a list of possible options for a specific command, type 'python Platypus.py Command -h'"
@@ -44,4 +29,4 @@ if __name__ == "__main__":
         sys.exit(0)
     else:
         command = sys.argv[1]
-        possCommands[command](sys.argv[2:])
+        commands[command](sys.argv[2:])
