@@ -1,19 +1,12 @@
-"""
-This module contains various functions and classes for handling
-variant information, including utilities for generating combinations
-of variants, haplotypes, and genotypes.
-"""
-
 from __future__ import division
 
 import logging
 import pysam
+from platypus.variant import Variant
 
-from variant import Variant
 
 logger = logging.getLogger("Log")
 
-###################################################################################################
 
 class VariantCandidateReader(object):
     """
@@ -50,7 +43,6 @@ class VariantCandidateReader(object):
         Generator funtion. Yields variants in order of
         genomic co-ordinate.
         """
-        vcfLines = None
         varList = []
 
         for vcfFile in self.vcfFiles:
@@ -62,7 +54,6 @@ class VariantCandidateReader(object):
 
             for line in vcfLines:
 
-                chrom = line.contig
                 pos = line.pos
                 ref = line.ref
                 alt = line.alt

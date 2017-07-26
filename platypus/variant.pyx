@@ -1,30 +1,10 @@
-#cython: boundscheck=False
-#cython: cdivision=True
-#cython: nonecheck=False
-
-"""
-Utility module, containing classes to handle reading and writing
-files of variants.
-"""
-
-import datetime
 import logging
-import cython
-import samtoolsWrapper
-import fastafile
 
-cimport cython
-cimport bamfileutils
-cimport fastafile
-cimport samtoolsWrapper
-
-from samtoolsWrapper cimport AlignedRead
-from samtoolsWrapper cimport cAlignedRead
-from fastafile cimport FastaFile
+from platypus.samtoolsWrapper cimport AlignedRead
+from platypus.samtoolsWrapper cimport cAlignedRead
+from platypus.fastafile cimport FastaFile
 
 logger = logging.getLogger("Log")
-
-###################################################################################################
 
 cdef double mLTOT = -0.23025850929940459    # Minus log ten over ten
 
@@ -35,7 +15,6 @@ cdef extern from "math.h":
     double fabs(double)
     double sqrt(double)
 
-###################################################################################################
 
 cdef class Variant(object):
     """
@@ -270,7 +249,6 @@ cdef class Variant(object):
         """
         return str(self)
 
-###################################################################################################
 
 cdef class VariantCandidateGenerator(object):
     """
@@ -635,5 +613,3 @@ cdef class VariantCandidateGenerator(object):
 
     cdef list getCandidates(self):
         return sorted(self.variantHeap.values())
-
-###################################################################################################

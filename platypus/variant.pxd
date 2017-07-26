@@ -1,9 +1,8 @@
 
-###################################################################################################
+from platypus.fastafile cimport FastaFile
+from platypus.samtoolsWrapper cimport AlignedRead
+from platypus.samtoolsWrapper cimport cAlignedRead
 
-from fastafile cimport FastaFile
-from samtoolsWrapper cimport AlignedRead
-from samtoolsWrapper cimport cAlignedRead
 
 cdef class Variant:
     cdef public bytes refName
@@ -26,7 +25,6 @@ cdef class Variant:
     cdef double calculatePrior(self)
     cdef void addVariant(self, Variant other)
 
-###################################################################################################
 
 cdef class VariantCandidateGenerator:
     cdef int CIGAR_M
@@ -64,5 +62,3 @@ cdef class VariantCandidateGenerator:
 
     cpdef getListOfSnpPositions(self, AlignedRead read)
     cpdef getListOfIndelPositions(self, AlignedRead read)
-
-###################################################################################################

@@ -1,13 +1,6 @@
 
-import variant
-import samtoolsWrapper
-import cwindow
+from platypus.variant cimport Variant
 
-from variant cimport Variant
-from samtoolsWrapper cimport cAlignedRead
-from cwindow cimport bamReadBuffer
-
-###################################################################################################
 
 cdef class Population:
     cdef dict vcfInfo
@@ -36,7 +29,6 @@ cdef class Population:
     cdef dict vcfFILTER(self)
     cdef dict vcfVARIANTS(self)
 
-###################################################################################################
 
 cdef class Caller:
     cdef int nHaplotypes
@@ -55,5 +47,3 @@ cdef class Caller:
     cdef Population call(self, int maxIters=*)
     cdef double EMiteration(self, double* freq)
     cdef setup(self, list haplotypes, list genotypes, int nInd, int ploidy, int verbosity, list readBuffers)
-
-###################################################################################################

@@ -1,64 +1,39 @@
-#cython: boundscheck=False
-#cython: cdivision=True
-#cython: nonecheck=False
-
-"""
-This module contains the top-level variant-calling
-code, including a VariantCaller class.
-
-To profile, put "# cython: profile=True" at the top of this file.
-"""
-
 from __future__ import division
 
-import cython
 import window
 import logging
 import variantutils
-import pyvcf
 import datetime
 import time
-import cpopulation
 
-cimport bamfileutils
-cimport fastafile
-cimport samtoolsWrapper
-cimport cwindow
-cimport cpopulation
-cimport variant
-cimport variantFilter
-#cimport cortexWrapper
+import platypus.vcf
+import platypus.cpopulation
+cimport platypus.fastafile
 
-from platypusexceptions import *
 from operator import attrgetter
 
-from chaplotype cimport Haplotype
-from cgenotype cimport generateAllGenotypesFromHaplotypeList
-from cgenotype cimport DiploidGenotype
-from cwindow cimport bamReadBuffer
-from samtoolsWrapper cimport AlignedRead
-from samtoolsWrapper cimport cAlignedRead
-from samtoolsWrapper cimport Samfile
-from cpopulation cimport Population
-from cpopulation cimport Caller
-from variant cimport Variant
-from variant cimport VariantCandidateGenerator
-from fastafile cimport FastaFile
-from variantFilter cimport filterVariants
-#from cortexWrapper cimport assembleReadsAndDetectVariants
+from platypus.chaplotype cimport Haplotype
+from platypus.cgenotype cimport generateAllGenotypesFromHaplotypeList
+from platypus.cgenotype cimport DiploidGenotype
+from platypus.cwindow cimport bamReadBuffer
+from platypus.samtoolsWrapper cimport AlignedRead
+from platypus.cpopulation cimport Population
+from platypus.cpopulation cimport Caller
+from platypus.variant cimport Variant
+from platypus.variant cimport VariantCandidateGenerator
+from platypus.fastafile cimport FastaFile
+from platypus.variantFilter cimport filterVariants
 
 logger = logging.getLogger("Log")
 vcfHeader = [('fileDate',datetime.date.fromtimestamp(time.time())), ('source','Platypus_Version_0.1.5')]
 nSupportingReadsGetter = attrgetter("nSupportingReads")
 
-###################################################################################################
 
 cdef extern from "math.h":
     double exp(double)
     double log(double)
     double log10(double)
 
-###################################################################################################
 
 cdef extern from "stdlib.h":
     void free(void *)
@@ -66,7 +41,6 @@ cdef extern from "stdlib.h":
     void *calloc(size_t,size_t)
     void *realloc(void *,size_t)
 
-###################################################################################################
 
 cdef callVariantsInSmallRegion(chrom, int start, int end, list bamFiles, FastaFile refFile, options, windowGenerator, outputFile, vcf, list samples):
     """
@@ -229,24 +203,24 @@ def generateGenotypesAndVariantsInAllRegionsAndHandleExceptions(region, fileName
 
     logger.debug("Constructing VariantCaller class with options %s" %(options))
 
-    options.bamFiles, samples, options.nInd = cpopulation.getDataAndSampleNames(options)
+    options.bamFiles, samples, options.nInd = platypus.cpopulation.getDataAndSampleNames(options)
     options = options
 
     chromosome,start,end = region
 
     # Cache reference sequence for this region. This should result in a substantial speed-up for
     # the fastafile.getSequence function.
-    cdef FastaFile refFile = fastafile.FastaFile(options.refFile, options.refFile + ".fai")
+    cdef FastaFile refFile = platypus.fastafile.FastaFile(options.refFile, options.refFile + ".fai")
     refFile.setCacheSequence(chromosome, start-25000, end+25000)
 
     outputFile = open(fileName, 'wb')
 
-    vcf = pyvcf.VCF()
+    vcf = platypus.vcf.VCF()
     vcf.setheader(vcfHeader + [('platypusOptions', str(options))])
     vcf.setsamples(samples)
-    vcf.setinfo(cpopulation.vcfInfoSignature)
-    vcf.setfilter(cpopulation.vcfFilterSignature)
-    vcf.setformat(cpopulation.vcfFormatSignature)
+    vcf.setinfo(platypus.cpopulation.vcfInfoSignature)
+    vcf.setfilter(platypus.cpopulation.vcfFilterSignature)
+    vcf.setformat(platypus.cpopulation.vcfFormatSignature)
     vcf.writeheader(outputFile)
 
     allBamFiles = options.bamFiles
@@ -260,7 +234,6 @@ def generateGenotypesAndVariantsInAllRegionsAndHandleExceptions(region, fileName
 
     outputFile.close()
 
-###################################################################################################
 
 def generateGenotypesAndVariantsInAllRegions(tuple args):
     """
@@ -274,7 +247,6 @@ def generateGenotypesAndVariantsInAllRegions(tuple args):
         logger.exception(e.message)
         raise e
 
-###################################################################################################
 
 cdef outputCallToVCF(Population call, vcfFile, list allSamples, list samplesThisPop, FastaFile refFile, outputFile, options):
     """
@@ -466,7 +438,6 @@ cdef outputCallToVCF(Population call, vcfFile, list allSamples, list samplesThis
         # Write variant call info to VCF file.
         vcfFile.write_data(outputFile, vcfDataLine)
 
-###################################################################################################
 
 cdef tuple refAndAlt(char* chrom, int POS, list variants, FastaFile refFile):
     """
@@ -529,5 +500,3 @@ cdef tuple refAndAlt(char* chrom, int POS, list variants, FastaFile refFile):
             ALT.append("".join(seq))
 
         return REF,ALT
-
-###################################################################################################

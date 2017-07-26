@@ -1,6 +1,8 @@
+
 cdef class FastaIndex:
     cdef object theFile
     cdef getRefs(self, int parseNCBI)
+
 
 cdef class FastaFile(object):
     cdef object theFile

@@ -1,51 +1,20 @@
-#cython: cdivision=True
-#cython: nonecheck=False
-#cython: boundscheck=False
-
-"""
-Module containing classes and utility functions for handling genotype
-information for populations. This has a slightly different interface to
-the classes for individuals and trios, which are contained in genotype.py.
-
-To profile, put "# cython: profile=True" at the top of this file.
-"""
-
 from __future__ import division
 
-import cython
-cimport cython
-
 import logging
-import pyvcf
+import platypus.vcf
 import re
 import math
-import cwindow
-import chaplotype
 
-from math import fsum
-from collections import defaultdict
-
-cimport variant
-cimport chaplotype
-cimport cgenotype
-cimport bamfileutils
-cimport samtoolsWrapper
-
-from variant cimport Variant
-from chaplotype cimport Haplotype
-from cgenotype cimport DiploidGenotype
-from samtoolsWrapper cimport AlignedRead
-from samtoolsWrapper cimport cAlignedRead
-from cwindow cimport bamReadBuffer
+from platypus.variant cimport Variant
+from platypus.chaplotype cimport Haplotype
+from platypus.cgenotype cimport DiploidGenotype
+from platypus.samtoolsWrapper cimport AlignedRead
+from platypus.samtoolsWrapper cimport cAlignedRead
+from platypus.cwindow cimport bamReadBuffer
 
 logger = logging.getLogger("Log")
 
-###################################################################################################
-
 ctypedef long long size_t
-
-###################################################################################################
-
 cdef double PI = math.pi
 cdef double mLTOT = -0.23025850929940459    # Minus log ten over ten
 
@@ -55,7 +24,6 @@ cdef extern from "stdlib.h":
     void *calloc(size_t,size_t)
     void *realloc(void *,size_t)
 
-###################################################################################################
 
 cdef extern from "math.h":
     double exp(double)
@@ -63,58 +31,53 @@ cdef extern from "math.h":
     double log10(double)
     double fabs(double)
 
-###################################################################################################
 
 cdef extern from "string.h":
     char *strcpy(char *dest, char *src)
     long strlen(char *s)
 
-###################################################################################################
 
 cdef inline double double_max(double a, double b): return a if a >= b else b
 cdef inline double double_min(double a, double b): return a if a <= b else b
 cdef inline int int_max(int a, int b): return a if a >= b else b
 cdef inline int int_min(int a, int b): return a if a <= b else b
 
-###################################################################################################
 
-# Definititons for the individual and filter fields included in the header
 vcfInfoSignature = {
-    "FR":pyvcf.FORMAT('FR',1,0,'Float','Estimated population frequency',-1),
-    "PP":pyvcf.FORMAT('PP',1,0,'Float','Posterior probability (phred scaled) that this variant segregates',-1),
-    "TC":pyvcf.FORMAT('TC',1,0,'Integer','Total coverage at this locus',-1),
-    "TCR":pyvcf.FORMAT('TCR',1,0,'Integer','Total reverse strand coverage at this locus',-1),
-    "TCF":pyvcf.FORMAT('TCF',1,0,'Integer','Total forward strand coverage at this locus',-1),
-    "TR":pyvcf.FORMAT('TR',1,0,'Integer','Total number of reads containing this variant',-1),
-    "NF":pyvcf.FORMAT('NF',1,0,'Integer','Total number of forward reads containing this variant',-1),
-    "NR":pyvcf.FORMAT('NR',1,0,'Integer','Total number of reverse reads containing this variant',-1),
-    "SC":pyvcf.FORMAT('SC',1,1,'String','Genomic sequence 10 bases either side of variant position',-1),
-    "RMP":pyvcf.FORMAT('RMP',1,0,'Float','RMS Position in reads of Variant',-1),
-    "HP":pyvcf.FORMAT('HP',1,1,'Integer','Homopolmer run length',-1),
-    "FPV":pyvcf.FORMAT('FPV',1,0,'Float','Forward strand p-value',-1),
-    "RPV":pyvcf.FORMAT('RPV',1,0,'Float','Reverse strand p-value',-1),
-    "ABPV":pyvcf.FORMAT('ABPV',1,0,'Float','Allele-bias p-value. Testing for low variant coverage',-1),
-    "MMLQ":pyvcf.FORMAT('MMLQ',1,0,'Float','Median minimum base quality for bases around variant',-1),
+    "FR":platypus.vcf.FORMAT('FR',1,0,'Float','Estimated population frequency',-1),
+    "PP":platypus.vcf.FORMAT('PP',1,0,'Float','Posterior probability (phred scaled) that this variant segregates',-1),
+    "TC":platypus.vcf.FORMAT('TC',1,0,'Integer','Total coverage at this locus',-1),
+    "TCR":platypus.vcf.FORMAT('TCR',1,0,'Integer','Total reverse strand coverage at this locus',-1),
+    "TCF":platypus.vcf.FORMAT('TCF',1,0,'Integer','Total forward strand coverage at this locus',-1),
+    "TR":platypus.vcf.FORMAT('TR',1,0,'Integer','Total number of reads containing this variant',-1),
+    "NF":platypus.vcf.FORMAT('NF',1,0,'Integer','Total number of forward reads containing this variant',-1),
+    "NR":platypus.vcf.FORMAT('NR',1,0,'Integer','Total number of reverse reads containing this variant',-1),
+    "SC":platypus.vcf.FORMAT('SC',1,1,'String','Genomic sequence 10 bases either side of variant position',-1),
+    "RMP":platypus.vcf.FORMAT('RMP',1,0,'Float','RMS Position in reads of Variant',-1),
+    "HP":platypus.vcf.FORMAT('HP',1,1,'Integer','Homopolmer run length',-1),
+    "FPV":platypus.vcf.FORMAT('FPV',1,0,'Float','Forward strand p-value',-1),
+    "RPV":platypus.vcf.FORMAT('RPV',1,0,'Float','Reverse strand p-value',-1),
+    "ABPV":platypus.vcf.FORMAT('ABPV',1,0,'Float','Allele-bias p-value. Testing for low variant coverage',-1),
+    "MMLQ":platypus.vcf.FORMAT('MMLQ',1,0,'Float','Median minimum base quality for bases around variant',-1),
 }
 
 vcfFilterSignature = {
-    #"pp10":pyvcf.FORMAT('pp10',1,0,'Flag','Posterior probability phred-score is less than 10','.'),
-    #"pp5":pyvcf.FORMAT('pp5',1,0,'Flag','Posterior probability phred-score is less than 5','.'),
-    "ab":pyvcf.FORMAT('ab',1,0,'Flag','Variant fails allele-bias filter','.'),
-    "sb":pyvcf.FORMAT('sb',1,0,'Flag','Variant fails strand-bias filter','.'),
-    "badReads":pyvcf.FORMAT('badReads',1,0,'Flag','Variant supported only by reads with low quality bases close to variant position, and not present on both strands.','.'),
-    "hp10":pyvcf.FORMAT('hp10',1,0,'Flag','Flanking sequence contains homopolymer of length 10 or greater','.'),
+    #"pp10":platypus.vcf.FORMAT('pp10',1,0,'Flag','Posterior probability phred-score is less than 10','.'),
+    #"pp5":platypus.vcf.FORMAT('pp5',1,0,'Flag','Posterior probability phred-score is less than 5','.'),
+    "ab":platypus.vcf.FORMAT('ab',1,0,'Flag','Variant fails allele-bias filter','.'),
+    "sb":platypus.vcf.FORMAT('sb',1,0,'Flag','Variant fails strand-bias filter','.'),
+    "badReads":platypus.vcf.FORMAT('badReads',1,0,'Flag','Variant supported only by reads with low quality bases close to variant position, and not present on both strands.','.'),
+    "hp10":platypus.vcf.FORMAT('hp10',1,0,'Flag','Flanking sequence contains homopolymer of length 10 or greater','.'),
 }
 
 
 vcfFormatSignature = {
-    "GT":pyvcf.FORMAT('GT',1,1,'String','Unphased genotypes','.'),
-    "GL":pyvcf.FORMAT('GL',1,'.','Float','Genotype log-likelihoods (log10) for AA,AB and BB genotypes, where A = ref and B = variant. Only applicable for bi-allelic sites','.'),
-    "GQ":pyvcf.FORMAT('GQ',1,1,'Integer','Genotype quality, as Phred score','.'),
-    "NR":pyvcf.FORMAT('NR',1,1,'Integer','Number of reads covering variant in this sample','.'),
+    "GT":platypus.vcf.FORMAT('GT',1,1,'String','Unphased genotypes','.'),
+    "GL":platypus.vcf.FORMAT('GL',1,'.','Float','Genotype log-likelihoods (log10) for AA,AB and BB genotypes, where A = ref and B = variant. Only applicable for bi-allelic sites','.'),
+    "GQ":platypus.vcf.FORMAT('GQ',1,1,'Integer','Genotype quality, as Phred score','.'),
+    "NR":platypus.vcf.FORMAT('NR',1,1,'Integer','Number of reads covering variant in this sample','.'),
 }
 
-###################################################################################################
 
 def getDataAndSampleNames(options):
     """
@@ -139,7 +102,6 @@ def getDataAndSampleNames(options):
 
     return bamFiles,samples,nInd
 
-###################################################################################################
 
 cdef double logFactorial(int x):
     """
@@ -158,7 +120,6 @@ cdef double logFactorial(int x):
         ans = y*log(y) + log(2.0*PI*y)/2 - y + (pow(y, -1))/12 - (pow(y,-3))/360 + (pow(y,-5))/1260 - (pow(y,-7))/1680 + (pow(y,-9))/1188
         return ans
 
-###################################################################################################
 
 cdef double binomial(int x, int size, double prob):
     """
@@ -180,7 +141,6 @@ cdef double binomial(int x, int size, double prob):
 
     return exp(logBinomCoefficient + logBinomProb)
 
-###################################################################################################
 
 cdef class Population:
     """
@@ -671,7 +631,6 @@ cdef class Population:
 
         return variantPosterior
 
-###################################################################################################
 
 cdef class Caller:
     """
@@ -929,5 +888,3 @@ cdef class Caller:
                 maxChange = freqChange
 
         return maxChange
-
-###################################################################################################

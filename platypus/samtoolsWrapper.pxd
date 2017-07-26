@@ -208,8 +208,9 @@ cdef extern from "pysam_util.h":
   
     void bam_cleanup_fetch_iterator(bam_fetch_iterator_t *iter)
 
-###################################################################################################
+
 cdef class Samfile
+
 
 cdef class IteratorRow:
     cdef bam_fetch_iterator_t*  bam_iter # iterator state object
@@ -220,7 +221,6 @@ cdef class IteratorRow:
     cdef bam1_t* getCurrent( self )
     cdef int cnext(self)
 
-###################################################################################################
 
 cdef class IteratorRowAll:
     cdef bam1_t* b
@@ -228,7 +228,6 @@ cdef class IteratorRowAll:
     cdef bam1_t* getCurrent(self)
     cdef int cnext(self)
 
-###################################################################################################
 
 cdef class Samfile:
     cdef char* filename
@@ -249,7 +248,6 @@ cdef class Samfile:
     cdef bam1_t* getCurrent( self )
     cdef int cnext(self)
 
-###################################################################################################
 
 cdef class AlignedRead:
     cdef bam1_t* _delegate
@@ -288,11 +286,9 @@ cdef class AlignedRead:
     cdef int is_duplicate(AlignedRead self)
     cdef opt(AlignedRead self, tag)
 
-###################################################################################################
 
 cdef AlignedRead makeAlignedRead(bam1_t* src)
 
-###################################################################################################
 
 ctypedef struct cAlignedRead:
     char* seq
@@ -318,7 +314,6 @@ ctypedef struct cAlignedRead:
     int nQualsBelow15
     int nQualsBelow20
 
-###################################################################################################
 
 cdef cAlignedRead* createRead(bam1_t * src)
 cdef destroyRead(cAlignedRead* theRead)

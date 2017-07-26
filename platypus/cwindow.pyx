@@ -1,41 +1,18 @@
-#cython: boundscheck=False
-#cython: cdivision=True
-#cython: nonecheck=False
-
-"""
-Fast cython implementation of some windowing functions.
-To profile, put "# cython: profile=True" at the top of this file.
-"""
-
 from __future__ import division
 
-import cython
-
-cimport chaplotype
-cimport cfilter
-cimport samtoolsWrapper
-cimport variant
-
 import logging
-import math
 
-from samtoolsWrapper cimport AlignedRead
-from samtoolsWrapper cimport Samfile
-from samtoolsWrapper cimport IteratorRow
-from samtoolsWrapper cimport makeAlignedRead
-from samtoolsWrapper cimport createRead
-from samtoolsWrapper cimport destroyRead
-from fastafile cimport FastaFile
-from chaplotype cimport Haplotype
-from variant cimport Variant
-from cfilter cimport getFilteredHaplotypes
-from bisect import bisect_left
+from platypus.samtoolsWrapper cimport Samfile
+from platypus.samtoolsWrapper cimport IteratorRow
+from platypus.samtoolsWrapper cimport createRead
+from platypus.samtoolsWrapper cimport destroyRead
+from platypus.fastafile cimport FastaFile
+from platypus.chaplotype cimport Haplotype
+from platypus.cfilter cimport getFilteredHaplotypes
 
-###################################################################################################
 
 logger = logging.getLogger("Log")
 
-###################################################################################################
 
 cdef extern from "stdlib.h":
     void free(void *)
@@ -43,7 +20,6 @@ cdef extern from "stdlib.h":
     void *calloc(size_t,size_t)
     void *realloc(void *,size_t)
 
-###################################################################################################
 
 cdef extern from "math.h":
     double exp(double)
@@ -52,7 +28,6 @@ cdef extern from "math.h":
     double fabs(double)
     int abs(int)
 
-###################################################################################################
 
 cdef int bisectReadsLeft(cAlignedRead** reads, int testPos, int nReads):
     """
@@ -74,7 +49,6 @@ cdef int bisectReadsLeft(cAlignedRead** reads, int testPos, int nReads):
 
     return low
 
-###################################################################################################
 
 cdef int bisectReadsRight(cAlignedRead** reads, int testPos, int nReads):
     """
@@ -96,7 +70,6 @@ cdef int bisectReadsRight(cAlignedRead** reads, int testPos, int nReads):
 
     return low
 
-###################################################################################################
 
 cdef int checkAndTrimRead(cAlignedRead* theRead, cAlignedRead* theLastRead, int maxBadQualBases, int minGoodQualBases):
     """
@@ -174,7 +147,6 @@ cdef int checkAndTrimRead(cAlignedRead* theRead, cAlignedRead* theLastRead, int 
 
     return True
 
-###################################################################################################
 
 cdef class bamReadBuffer(object):
     """
@@ -294,7 +266,6 @@ cdef class bamReadBuffer(object):
             logger.info("Buffer start pos = %s. end pos = %s." %(self.startBase, self.endBase))
             raise StandardError, "This should never happen. Read start pointer > read end pointer!!"
 
-###################################################################################################
 
 cdef list getHaplotypesInWindow(dict window, int nReads, FastaFile refFile, int ploidy, int maxCoverage, int minMapQual, int minBaseQual, int maxHaplotypes, int maxVariants, int maxReadLength):
     """
@@ -329,5 +300,3 @@ cdef list getHaplotypesInWindow(dict window, int nReads, FastaFile refFile, int 
 
     # Take the top 'maxHaplotypes' haplotypes, as ranked by likelihood
     return getFilteredHaplotypes(refHaplotype, variants, nVar, refFile, windowChr, windowStart, windowEnd, maxHaplotypes, maxReadLength)
-
-###################################################################################################

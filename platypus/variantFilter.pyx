@@ -1,31 +1,23 @@
-#cython: boundscheck=False
-#cython: cdivision=True
-#cython: nonecheck=False
-
-"""
-Various classes and functions for use in generating and processing
-variant candidates.
-"""
-
 from __future__ import division
 
 import logging
-import fastafile
-import cython
 
-cimport chaplotype
-cimport variant
-cimport fastafile
-
-from variant cimport Variant
-from chaplotype cimport convertVariantToStandardFormat
-from fastafile cimport FastaFile
+from platypus.variant cimport Variant
+from platypus.chaplotype cimport convertVariantToStandardFormat
+from platypus.fastafile cimport FastaFile
 
 logger = logging.getLogger("Log")
 
-###################################################################################################
 
-cdef list filterVariants(list varList, FastaFile refFile, int maxReadLength, int minSupport, int strandFilter, int maxDiff, int verbosity):
+cdef list filterVariants(
+        list varList,
+        FastaFile refFile,
+        int maxReadLength,
+        int minSupport,
+        int strandFilter,
+        int maxDiff,
+        int verbosity
+):
     """
     Generator function, this calls the Candidates generator function, and gets a list of
     sorted variant candidates. This list is then merged such that only unique variant candidates
@@ -89,5 +81,3 @@ cdef list filterVariants(list varList, FastaFile refFile, int maxReadLength, int
             filteredVariants.append(lastVariant)
 
     return sorted(filteredVariants)
-
-###################################################################################################

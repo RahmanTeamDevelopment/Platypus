@@ -1,13 +1,6 @@
-import cython
+from platypus.samtoolsWrapper cimport cAlignedRead
+from platypus.fastafile cimport FastaFile
 
-cimport samtoolsWrapper
-cimport fastafile
-
-from samtoolsWrapper cimport Samfile
-from samtoolsWrapper cimport IteratorRow
-from samtoolsWrapper cimport AlignedRead
-from samtoolsWrapper cimport cAlignedRead
-from fastafile cimport FastaFile
 
 cdef class bamReadBuffer:
     cdef char* chrom
@@ -22,4 +15,16 @@ cdef class bamReadBuffer:
     cdef cAlignedRead** windowEnd
     cdef setWindowPointers(self, int start, int end)
 
-cdef list getHaplotypesInWindow(dict window, int nReads, FastaFile refFile, int ploidy, int maxCoverage, int minMapQual, int minReadQual, int maxHaplotypes, int maxVariants, int maxReadLength)
+
+cdef list getHaplotypesInWindow(
+        dict window,
+        int nReads,
+        FastaFile refFile,
+        int ploidy,
+        int maxCoverage,
+        int minMapQual,
+        int minReadQual,
+        int maxHaplotypes,
+        int maxVariants,
+        int maxReadLength
+)

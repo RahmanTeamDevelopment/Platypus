@@ -11,7 +11,6 @@ import optparse
 import glob
 from copy import copy
 
-###################################################################################################
 
 def checkList(option, opt, value):
     """
@@ -25,7 +24,6 @@ def checkList(option, opt, value):
     except ValueError:
         raise OptionValueError("option %s: invalid comma-delimitedstring value: %r" % (opt, value))
 
-###################################################################################################
 
 class ExtendedOption(optparse.Option):
     """
@@ -47,7 +45,6 @@ class ExtendedOption(optparse.Option):
 
         optparse.Option.__init__(self, *opts, **attrs)
 
-###################################################################################################
 
 class OptionParser(optparse.OptionParser):
     """
@@ -72,5 +69,3 @@ class OptionParser(optparse.OptionParser):
                 self.error("Option %s is required\n\n" % (str(option)))
 
         return optparse.OptionParser.check_values(self, values, args)
-
-###################################################################################################

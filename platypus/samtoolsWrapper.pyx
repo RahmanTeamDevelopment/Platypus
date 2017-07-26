@@ -1,19 +1,11 @@
-#cython: boundscheck=False
-#cython: cdivision=True
-#cython: nonecheck=False
-
-import os
 import types
-import itertools
-cimport cython
 
-###################################################################################################
-# Structs etc from samtools and C libtaries
 
 cdef extern from "stdlib.h":
   void free(void *)
   void *calloc(size_t,size_t)
   int c_abs "abs" (int)
+
 
 cdef extern from "stdio.h":
     ctypedef struct FILE:
@@ -32,8 +24,10 @@ cdef extern from "stdio.h":
     int fprintf(FILE *ifile,char *fmt,...)
     char *fgets(char *str,int size,FILE *ifile)
 
+
 cdef extern from "ctype.h":
   int toupper(int c)
+
 
 cdef extern from "string.h":
   ctypedef int size_t
@@ -43,12 +37,14 @@ cdef extern from "string.h":
   size_t strlen(char *s)
   int memcmp( void * s1, void *s2, size_t len )
 
+
 cdef extern from "stdint.h":
     ctypedef int int64_t
     ctypedef int int32_t
     ctypedef int uint32_t
     ctypedef int uint8_t
     ctypedef int uint64_t
+
 
 cdef extern from "bam.h":
 
@@ -114,6 +110,7 @@ cdef extern from "bam.h":
     int bam_reg2bin(uint32_t beg, uint32_t end)
     uint32_t bam_calend(bam1_core_t *c, uint32_t *cigar)
 
+
 cdef extern from "sam.h":
 
   ctypedef struct samfile_t_un:
@@ -130,6 +127,7 @@ cdef extern from "sam.h":
   void samclose(samfile_t *fp)
   int samread(samfile_t *fp, bam1_t *b)
   int samwrite(samfile_t *fp, bam1_t *b)
+
 
 cdef extern from "pysam_util.h":
 
@@ -162,7 +160,7 @@ cdef extern from "pysam_util.h":
     bam1_t * bam_fetch_iterate(bam_fetch_iterator_t *iter)
     void bam_cleanup_fetch_iterator(bam_fetch_iterator_t *iter)
 
-###################################################################################################
+
 # defines imported from samtools
 DEF SEEK_SET = 0
 DEF SEEK_CUR = 1
@@ -1240,7 +1238,6 @@ cdef class AlignedRead:
         elif type == 'Z':
             return <char*>bam_aux2Z(v)
 
-###################################################################################################
 
 cdef AlignedRead makeAlignedRead(bam1_t * src):
     '''
@@ -1249,5 +1246,3 @@ cdef AlignedRead makeAlignedRead(bam1_t * src):
     cdef AlignedRead dest = AlignedRead()
     dest._delegate = bam_dup1(src)
     return dest
-
-#####################################################################

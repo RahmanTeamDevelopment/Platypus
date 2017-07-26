@@ -1,19 +1,9 @@
-"""
-This module contains utilities for generating a list windows, and the reads
-and variant candidates they contain, for processing by the Platypus variant
-caller.
-"""
 from __future__ import division
-
 import logging
-import variant
-import variantutils
 
-from variant import Variant,VariantCandidateGenerator
 
 logger = logging.getLogger("Log")
 
-###################################################################################################
 
 class WindowGenerator(object):
     """
@@ -137,5 +127,3 @@ class WindowGenerator(object):
                     winEnd = winEnd +1
 
             yield dict(chromosome=chromosome,startPos=winStart, endPos=winEnd, variants=vars)
-
-###################################################################################################

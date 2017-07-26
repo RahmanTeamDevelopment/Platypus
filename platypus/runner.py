@@ -6,11 +6,11 @@ algorithm and initial implementation.
 from __future__ import division
 
 import logging
-import bamfileutils
 import multiprocessing
-import variantcaller
-import extendedoptparse
 import os
+import platypus.bamfileutils
+import platypus.variantcaller
+import platypus.extendedoptparse
 
 
 logger = logging.getLogger("Log")
@@ -35,7 +35,7 @@ def printRegions(args):
     Split the reference sequence into sensibly-sized regions, and
     print them out.
     """
-    parser = extendedoptparse.OptionParser()
+    parser = platypus.extendedoptparse.OptionParser()
 
     parser.add_option("--refFile",dest="refFile", help="Fasta file of reference. Index must be in same directory", action='store', type='string', required=True)
     parser.add_option("--regions", dest="regions", type="list", help = "region as comma-separated list of chr:start-end, or just list of chr, or nothing", default=None, required=False, action = 'store')
@@ -44,7 +44,7 @@ def printRegions(args):
     parser.add_option("--parseNCBI", dest="parseNCBI", help="", type=int, action='store', default=0)
 
     (options, args) = parser.parse_args(args)
-    regions = bamfileutils.getRegions(options)
+    regions = platypus.bamfileutils.getRegions(options)
 
     for region in regions:
         print "%s:%s-%s" %(region[0],region[1],region[2])
@@ -105,7 +105,7 @@ def runVariantCaller(options):
 
         # Don't multi-process, just use a single process. This is probably
         # more efficient, and certainly better for profiling.
-        regions = bamfileutils.getRegions(options)
+        regions = platypus.bamfileutils.getRegions(options)
 
         # Write calls to temporary files, and then merge these into a
         # sorted vcf file at the end.
@@ -115,10 +115,10 @@ def runVariantCaller(options):
             chromosome,start,end = region[::]
             fileName = options.output + "_temp_%s:%s-%s" %(chromosome, start, end)
             fileNames.append(fileName)
-            variantcaller.generateGenotypesAndVariantsInAllRegions((region, fileName, options, lock))
+            platypus.variantcaller.generateGenotypesAndVariantsInAllRegions((region, fileName, options, lock))
     else:
         # Create process manager
-        regions = bamfileutils.getRegions(options)
+        regions = platypus.bamfileutils.getRegions(options)
         manager = multiprocessing.Manager()
         lock = manager.Lock()
         theArgs = []
@@ -130,7 +130,7 @@ def runVariantCaller(options):
             theArgs.append((region, fileName, options, lock))
 
         pool = multiprocessing.Pool(processes=options.nCPU)
-        pool.map(variantcaller.generateGenotypesAndVariantsInAllRegions, theArgs)
+        pool.map(platypus.variantcaller.generateGenotypesAndVariantsInAllRegions, theArgs)
         pool.close()
         pool.join()
 
@@ -165,13 +165,12 @@ def runVariantCaller(options):
     outputVCF.close()
     logger.info("Finished variant calling")
 
-###################################################################################################
 
 def callVariants(args):
     """
     Run the Platypus variant-caller, with the specified arguments
     """
-    parser = extendedoptparse.OptionParser()
+    parser = platypus.extendedoptparse.OptionParser()
 
     parser.add_option("-o", "--output", dest="output",  help="Output SNP data file", action='store', type='string', default="AllVariants.vcf")
     parser.add_option("-n", "--nIndividuals", dest="nInd", help="Number of Individuals sequenced", action='store', type='int', default=1)
@@ -215,5 +214,3 @@ def callVariants(args):
 
     (options, args) = parser.parse_args(args)
     runVariantCaller(options)
-
-###################################################################################################

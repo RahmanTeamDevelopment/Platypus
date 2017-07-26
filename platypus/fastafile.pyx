@@ -1,21 +1,7 @@
-#cython: boundscheck=False
-#cython: cdivision=True
-#cython: nonecheck=False
-
-"""
-FastaFile is a utility class used for reading the Fasta file format,
-and facilitating access to reference sequences.
-"""
-
-import cython
-cimport cython
-
-###################################################################################################
 
 cdef extern from "stdlib.h":
     long long int atoll(char*)
 
-###################################################################################################
 
 cdef class sequenceTuple:
     """
@@ -37,7 +23,6 @@ cdef class sequenceTuple:
         self.LineLength = lineLength
         self.FullLineLength = fullLength
 
-###################################################################################################
 
 cdef class FastaIndex:
     """
@@ -68,7 +53,6 @@ cdef class FastaIndex:
 
         return theDict
 
-###################################################################################################
 
 cdef class FastaFile:
     """
@@ -188,5 +172,3 @@ cdef class FastaFile:
         self.theFile.seek(desiredSequenceStartPos)
         cdef bytes seq = self.theFile.read(desiredSequenceLengthInFile)
         return seq.replace("\n", "").upper()
-
-###################################################################################################
