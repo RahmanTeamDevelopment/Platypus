@@ -47,4 +47,4 @@ Once downloaded and correctly installed, Platypus can be run with the following 
 
 By default, Platypus takes three command line arguments: the name of the input BAM file, the of input reference file and the name of the output VCF file. 
 
-* The input bam file (-i) should follow the `BAM format <http://samtools.github.io/hts-specs/SAMv1.pdf>`_ and should contain the mapped reads. The .bai index file should also be present in the same directory.
+* The input bam file should follow the `BAM format <http://samtools.github.io/hts-specs/SAMv1.pdf>`_ and should contain the mapped reads. The .bai index file should also be present in the same directory.
