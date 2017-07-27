@@ -158,5 +158,9 @@ setup(
         "test/smoke/check_installation_succeeded.bash",
     ],
     zip_safe=False,
-    include_package_data=True
+    include_package_data=True,
+    install_requires=[
+        "Cython==0.25.2",
+        "pysam==0.10.0"
+    ]
 )
