@@ -3,7 +3,8 @@
 Introduction
 ************
 
-Platypus is a tool for identifying small variants (SNPs and indels) in BAM files.
+Platypus is a tool for identifying small variants (SNPs and indels) in BAM files. This code is a fork of Platypus version 0.1.5, which is used
+in OpEx. The latest Platypus code is available on `Github <https://github.com/andyrimmer/Platypus>`_.
 
 
 ************
@@ -33,8 +34,8 @@ Platypus is ready for use.
 Dependencies
 ============
 
-To install and run Platypus v1.3.0 you will need `Git <https://git-scm.com>`_, `Python <https://www.python.org>`_ (only
-version 2.7.X is currently supported), and `Virtualenv <https://virtualenv.pypa.io/en/stable/>`_. 
+To install and run Platypus v0.1.5 you will need `Python <https://www.python.org>`_ (only version 2.7.X is currently supported),
+and `Virtualenv <https://virtualenv.pypa.io/en/stable/>`_. 
 
 
 *****************
@@ -43,8 +44,29 @@ Running Platypus
 
 Once downloaded and correctly installed, Platypus can be run with the following simple command::
 
-    env/bin/platypus --bamFiles=input.bam --refFile=reference.fa --output=variant_calls.vcf
+    env/bin/platypus callVariants --bamFiles=input.bam --refFile=reference.fa --output=variant_calls.vcf
 
-By default, Platypus takes three command line arguments: the name of the input BAM file, the of input reference file and the name of the output VCF file. 
+This is the simplest way to run Platypus, specifying only the names of the input BAM file and input reference file. Variant
+calls will then be outupt to a file called `AllVariants.vcf`. 
 
-* The input bam file should follow the `BAM format <http://samtools.github.io/hts-specs/SAMv1.pdf>`_ and should contain the mapped reads. The .bai index file should also be present in the same directory.
+* The input bam file should follow the `BAM format <http://samtools.github.io/hts-specs/SAMv1.pdf>`_ and should contain mapped reads sorted by genomic coordinate. Platypus has been tested using BAM files produced by `Stampy <http://www.well.ox.ac.uk/project-stampy>`_ and `BWA <http://bio-bwa.sourceforge.net>`_, but should also work with other short read aligners. The BAM index file (.bai) should also be present in the same directory; this can be created using `Samtools <http://www.htslib.org>`_.
+
+
+********************
+Command Line Options
+********************
+
+Platypus has a large number of configuration options that can be specified on the command-line. Most of these can be ignored, as they take default values
+and are already configured for optimal results. Below is a full descripton of all configuration options.
+
+.. csv-table::
+	:header: "Option", "Type", "Default Value", "Example Usage", "Description"
+	:delim: |
+
+	-h --help |  NA | NA | `--help` | If this option is set then Platypus will print a help message and then exit
+	--bamFiles |  Comma-separated list of strings | None | `--bamFiles=test1.bam,test2.bam` | A list of BAM file names. All the specified BAM files will be searched for variants. The output will go into a single VCF file
+	--refFile | String | None | `--refFile=human_37.fa` | Name of the input reference FASTA file. This file must be indexed (using `Samtools faidx` for example) and must contain the same reference sequence that was used to map the reads in the input BAM file(s)
+
+
+More text goes here.
+
