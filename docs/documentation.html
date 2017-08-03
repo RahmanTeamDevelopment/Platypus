@@ -50,7 +50,7 @@
   <div class="section" id="introduction">
 <h1>1. Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
 <p>Platypus is a tool for identifying small variants (SNPs and indels) in BAM files. This code is a fork of Platypus version 0.1.5, which is used
-in OpEx. The latest Platypus code is available on <a class="reference external" href="https://github.com/andyrimmer/Platypus">Github</a>.</p>
+in OpEx. If you are looking for the most recent version of Platypus, the code is available <a class="reference external" href="https://github.com/andyrimmer/Platypus">here</a>.</p>
 </div>
 <div class="section" id="installation">
 <h1>2. Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
@@ -129,9 +129,224 @@ and are already configured for optimal results. Below is a full descripton of al
 <td><cite>&#8211;refFile=human_37.fa</cite></td>
 <td>Name of the input reference FASTA file. This file must be indexed (using <cite>Samtools faidx</cite> for example) and must contain the same reference sequence that was used to map the reads in the input BAM file(s)</td>
 </tr>
+<tr class="row-odd"><td>-o &#8211;output</td>
+<td>String</td>
+<td>AllVariants.vcf</td>
+<td><cite>&#8211;output=variant_calls.vcf</cite></td>
+<td>Name of the output VCF file</td>
+</tr>
+<tr class="row-even"><td>&#8211;regions</td>
+<td>Comma-separated list of strings or the name of a text file</td>
+<td>None</td>
+<td><cite>&#8211;regions=chr1:1000-2000,chr2:2000-4000</cite></td>
+<td>Platypus will produce variant calls only in the specified regions. See <a class="reference internal" href="#specifying-calling-regions"><span class="std std-ref">Specifying calling regions</span></a> for a more detailed description</td>
+</tr>
+<tr class="row-odd"><td>&#8211;verbosity</td>
+<td>Integer from 0 to 3</td>
+<td>2</td>
+<td><cite>&#8211;verbosity=3</cite></td>
+<td>Sets the level of output logging for Platypus. Increase this value for more verbose log output</td>
+</tr>
+<tr class="row-even"><td>&#8211;logFileName</td>
+<td>String</td>
+<td>log.txt</td>
+<td><cite>&#8211;logFileName=platypus_log_file.txt</cite></td>
+<td>Name of the output log file.</td>
+</tr>
+<tr class="row-odd"><td>&#8211;nCPU</td>
+<td>Integer</td>
+<td>1</td>
+<td><cite>&#8211;nCPU=3</cite></td>
+<td>Number of processes to use for variant calling. If &gt; 1 then Platypus will run in multiple processes and merge the VCF files into one file at the end</td>
+</tr>
 </tbody>
 </table>
-<p>More text goes here.</p>
+<div class="section" id="deprecated-command-line-options">
+<h2>4.1. Deprecated command-line options<a class="headerlink" href="#deprecated-command-line-options" title="Permalink to this headline">¶</a></h2>
+<p>The following command-line options are deprecated, and should not be used.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Option</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>-n &#8211;nIndividuals</td>
+<td>Was used to set the number of individuals in the input BAM files. Now each BAM file is assumed to contain data from only one individual</td>
+</tr>
+<tr class="row-odd"><td>-p &#8211;ploidy</td>
+<td>Was used to set the ploidy of the samples in the BAM files. Now this is fixed at 2.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="specifying-calling-regions">
+<span id="id2"></span><h2>4.2. Specifying calling regions<a class="headerlink" href="#specifying-calling-regions" title="Permalink to this headline">¶</a></h2>
+<p>It often useful to call variants on only a subset of the genome, e.g. a particular gene or exon. Platypus supports this mode through the <cite>&#8211;regions</cite> option. This option can be used in several ways:</p>
+<blockquote>
+<div><ul class="simple">
+<li>A comma-separated list of chromosome:start-end coordinates can be given, e.g. <cite>&#8211;regions=chr1:0-100,chr2:300-400,chrX:1000-20000</cite>. Platypus will search for variants in just these regions</li>
+<li>A comma-separated list of chromosomes can be given, e.g. <cite>&#8211;regions=chr1,chr2,chr20,chrY</cite>. Platypus will search for variants in just these chromosomes, and the lengths of the chromosomes will be taken from either the BAM file header or the reference FASTA file index</li>
+<li>A text file name may be specified, e.g. <cite>&#8211;regions=my_regions.txt</cite>. This file must contain only lines with the format <cite>chrom:start-end</cite>, e.g. <cite>chr1:1000-20000</cite> with one region per line.</li>
+<li>If no regions are specified then Platypus will call variants across the whole genome. It will check the BAM header file and the reference FASTA file to determine the list of chromosomes and other contigs, as well as their lengths</li>
+</ul>
+</div></blockquote>
+<table class="docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--genSNPs=<var>GENSNPS</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>If set to TRUE (default), SNP candidates will be
+considered</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--genIndels=<var>GENINDELS</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>If set to TRUE (default), Indel candidates will be
+considered</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-n <var>NIND</var></span>, <span class="option">--nIndividuals=<var>NIND</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Number of Individuals sequenced</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">-p <var>PLOIDY</var></span>, <span class="option">--ploidy=<var>PLOIDY</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Number of copief of each chromosome per individual
+same directory
+just list of chr, or nothing</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--processRegionSize=<var>PROCESSREGIONSIZE</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Size of region to use in each process. Chromosomes
+will be broken up into regions of this size and run in
+separate processes (or consecutively, if nCPU == 1)</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--bufferSize=<var>BUFFERSIZE</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Data will be buffered in regions of this size</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--minReads=<var>MINREADS</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Minimum required number of reads in window</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--maxHaplotypes=<var>MAXHAPLOTYPES</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Maximium haplotypes to consider in a given window</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--maxVariants=<var>MAXVARIANTS</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Maximium variants to consider in a given window</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--maxReads=<var>MAXREADS</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Maximium coverage in window</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--maxSize=<var>MAXSIZE</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Largest indel to consider</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--minMapQual=<var>MINMAPQUAL</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Minimum mapping quality of read. Any reads with map
+qual below this are ignored</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--maxBadQualBases=<var>MAXBADQUALBASES</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Max number of bases per read that can have base-
+quality &lt;= 20</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--minGoodQualBases=<var>MINGOODQUALBASES</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Minimum number of bases per read that must have base-
+quality &gt;= 20</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--minBaseQual=<var>MINBASEQUAL</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Minimum allowed base-calling quality. Any bases with
+qual below this are ignored in SNP-calling</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--maxReadLength=<var>RLEN</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Maximum read length</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--minFlank=<var>MINFLANK</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Flank size for indel candidates</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--labels=<var>LABELS</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>regex to extract names from filenames</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--source=<var>SOURCEFILE</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>vcf file(s) to get candidates from</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--freqAsPrior=<var>FREQASPRIOR</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>If 1, use the frequency of input variants as a prior</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--dataType=<var>DATATYPE</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Are we looking at individual,trio,population, or pool
+data?</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--getVariantsFromBAMs=<var>GETVARIANTSFROMBAMS</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>If set to TRUE (default), variant candidates will be
+generated from BAMs as well as any other inputs</td></tr>
+</tbody>
+</table>
+<p>&#8211;parseNCBI=PARSENCBI
+&#8211;callOnlyIndels=CALLONLYINDELS</p>
+<blockquote>
+<div>If set to TRUE (default), only windows containing
+Indel candidates will be considered</div></blockquote>
+<table class="docutils option-list" frame="void" rules="none">
+<col class="option" />
+<col class="description" />
+<tbody valign="top">
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--minPosterior=<var>MINPOSTERIOR</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Only variants with posterior &gt;= this will be outpu to
+the VCF. Value is a Phred-score.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--strandFilter=<var>STRANDFILTER</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>If set to TRUE only variants occuring at least once on
+each strand will be considered.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--sbThreshold=<var>SBTHRESHOLD</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>P-value for strand-bias filtering..</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--abThreshold=<var>ABTHRESHOLD</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>P-value for allele-bias filtering..</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--printVarsAndExit=<var>PRINTVARSANDEXIT</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>If 1, print a list of variant candidates, and exit.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--badReadsWindow=<var>BADREADSWINDOW</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Size of window around variant to look for low-quality
+bases.</td></tr>
+<tr><td class="option-group" colspan="2">
+<kbd><span class="option">--badReadsThreshold=<var>BADREADSTHRESHOLD</var></span></kbd></td>
+</tr>
+<tr><td>&#160;</td><td>Variants where the median minimum quality in a window
+of badReadsWindow around the variant position falls
+below this value will be filtered with the flag
+&#8216;badReads&#8217;</td></tr>
+</tbody>
+</table>
+</div>
 </div>
 
 
@@ -148,7 +363,11 @@ and are already configured for optimal results. Below is a full descripton of al
 </ul>
 </li>
 <li><a class="reference internal" href="#running-platypus">3. Running Platypus</a></li>
-<li><a class="reference internal" href="#command-line-options">4. Command Line Options</a></li>
+<li><a class="reference internal" href="#command-line-options">4. Command Line Options</a><ul>
+<li><a class="reference internal" href="#deprecated-command-line-options">4.1. Deprecated command-line options</a></li>
+<li><a class="reference internal" href="#specifying-calling-regions">4.2. Specifying calling regions</a></li>
+</ul>
+</li>
 </ul>
 
   <h4>Previous topic</h4>
