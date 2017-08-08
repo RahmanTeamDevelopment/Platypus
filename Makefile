@@ -4,15 +4,12 @@ PY := platypus/*.py
 FLAKE8=flake8 --max-line-length=120
 SCRIPTS=bin/platypus
 
-cleanAll: clean cleanDocs
+cleanAll: clean
 	rm -rf env
 
-clean: cleanDocs
+clean:
 	pip uninstall -y Platypus
 	find . -name __pycache__ | xargs rm -rf
-
-cleanDocs:
-	cd docs/sphinx; make clean
 
 .PHONY:
 pdfdocs: docs/sphinx/*.rst
@@ -22,6 +19,7 @@ pdfdocs: docs/sphinx/*.rst
 docs: docs/sphinx/*.rst
 	cd docs/sphinx; make html;
 	cp -rf docs/sphinx/_build/html/* docs/
+	cd docs/sphinx; make clean
 
 wheels:
 	pip wheel .

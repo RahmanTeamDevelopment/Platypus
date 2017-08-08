@@ -59,6 +59,10 @@ Command Line Options
 Platypus has a large number of configuration options that can be specified on the command-line. Most of these can be ignored, as they take default values
 and are already configured for optimal results. Below is a full descripton of all configuration options.
 
+
+Basic options
+=============
+
 .. csv-table::
 	:header: "Option", "Type", "Default Value", "Example Usage", "Description"
 	:delim: |
@@ -73,6 +77,103 @@ and are already configured for optimal results. Below is a full descripton of al
 	--nCPU | Integer | 1 | `--nCPU=3` | Number of processes to use for variant calling. If > 1 then Platypus will run in multiple processes and merge the VCF files into one file at the end
 
 
+.. _bam_data_quality_filtering:
+
+BAM Data processing and filtering options
+=========================================
+
+Platypus does not necessarily use every read, in the BAM for variant calling. Whole reads may be filtered out based on various quality criteria, and segments of individual reads may also be filtered. The table below gives a summary of the configuration options that may be used to control read-level filtering.
+
+.. csv-table::
+	:header: "Option", "Type", "Default Value", "Example Usage", "Description"
+	:delim: |
+
+	--processRegionSize | Integer, 30,000,000 | `--processRegionSize=10000000` | Platypus breaks up the genome into regions of this size and processes them in parallel (if nCPU > 1) or consecutively (if nCPU == 1)
+	--bufferSize | Integer | 1,000,000 | `--bufferSize=100000` | The maximum size of region (per process, and as a genomic interval) that Platypus will read into memory at any point. This can be used to control memory usage
+	--maxReads | Integer | 5,000,000 | `--maxReads=100000` | This sets an upper limit on the amount of data that Platypus will try to process in one region. If the number of reads in a region of `bufferSize` is larger than this then Platypus will skip the region. This option can be used, in conjunction with `bufferSize` to control memory usage.
+	--maxBadQualBases | Integer | ?  | ?
+
+--maxBadQualBases=MAXBADQUALBASES
+                      Max number of bases per read that can have base-
+                      quality <= 20
+--minGoodQualBases=MINGOODQUALBASES
+                      Minimum number of bases per read that must have base-
+                      quality >= 20
+--maxReadLength=RLEN  Maximum read length
+--labels=LABELS       regex to extract names from filenames
+
+Variant calling options
+=======================
+
+.. csv-table::
+	:header: "Option", "Type", "Default Value", "Example Usage", "Description"
+	:delim: |
+
+	--genSNPs | Boolean | 1 (True) | `--genSNPs=1` | If set to 1, Platypus will call SNPs. If set to 0 Platypus will not call SNPs
+	--genIndels | Boolean | 1 (True) | `--genIndels=1` | If set to 1, Platypus will call Indels. If set to 0 Platypus will not call Indels
+	--minBaseQual | Integer | 20 | `--minBaseQual=25` | Only bases with base quality >= this value will be examined when generating the initial list of SNP candidates
+	--minMapQual | Integer | 20 | `--minMapQual=25` | Only bases with base quality >= this value will be examined when generating the initial list of SNP candidates
+
+--maxHaplotypes=MAXHAPLOTYPES
+                      Maximium haplotypes to consider in a given window
+--maxVariants=MAXVARIANTS
+                      Maximium variants to consider in a given window
+--maxSize=MAXSIZE     Largest indel to consider
+--minReads=MINREADS   Minimum required number of reads in window
+--callOnlyIndels=CALLONLYINDELS
+                      If set to TRUE (default), only windows containing
+                      Indel candidates will be considered
+--strandFilter=STRANDFILTER
+                      If set to TRUE only variants occuring at least once on
+                      each strand will be considered.
+--getVariantsFromBAMs=GETVARIANTSFROMBAMS
+                      If set to TRUE (default), variant candidates will be
+                      generated from BAMs as well as any other inputs
+
+--minFlank=MINFLANK   Flank size for indel candidates
+
+
+Variant filtering options
+=========================
+
+.. csv-table::
+	:header: "Option", "Type", "Default Value", "Example Usage", "Description"
+	:delim: |
+
+--minPosterior=MINPOSTERIOR
+                      Only variants with posterior >= this will be outpu to
+                      the VCF. Value is a Phred-score.
+--sbThreshold=SBTHRESHOLD
+                      P-value for strand-bias filtering..
+--abThreshold=ABTHRESHOLD
+                      P-value for allele-bias filtering..
+--badReadsWindow=BADREADSWINDOW
+                      Size of window around variant to look for low-quality
+                      bases.
+--badReadsThreshold=BADREADSTHRESHOLD
+                      Variants where the median minimum quality in a window
+                      of badReadsWindow around the variant position falls
+                      below this value will be filtered with the flag
+                      'badReads'
+
+
+Miscellaneous options
+=====================
+
+.. csv-table::
+	:header: "Option", "Type", "Default Value", "Example Usage", "Description"
+	:delim: |
+
+	--source | String | None | `--source=thousand_genomes_snps.vcf.gz` | Name of an input VCF file to be used as a source of variant candidates. See :ref:`Supplying variant candidates from VCF<supplying_variant_candidates_from_vcf>` for more details
+
+--source=SOURCEFILE   vcf file(s) to get candidates from
+--freqAsPrior=FREQASPRIOR
+                      If 1, use the frequency of input variants as a prior
+--parseNCBI=PARSENCBI
+--printVarsAndExit=PRINTVARSANDEXIT
+                      If 1, print a list of variant candidates, and exit.
+
+
 Deprecated command-line options
 ===============================
 
@@ -84,6 +185,7 @@ The following command-line options are deprecated, and should not be used.
 
 	-n --nIndividuals | Was used to set the number of individuals in the input BAM files. Now each BAM file is assumed to contain data from only one individual
 	-p --ploidy | Was used to set the ploidy of the samples in the BAM files. Now this is fixed at 2.
+	--dataType | Was used to distinguish between individual, trio and pooled sequencing datasets
 
 
 .. _specifying_calling_regions:
@@ -99,76 +201,7 @@ It often useful to call variants on only a subset of the genome, e.g. a particul
 	* If no regions are specified then Platypus will call variants across the whole genome. It will check the BAM header file and the reference FASTA file to determine the list of chromosomes and other contigs, as well as their lengths
 
 
+.. _supplying_variant_candidates_from_vcf:
 
---genSNPs=GENSNPS     If set to TRUE (default), SNP candidates will be
-                      considered
---genIndels=GENINDELS
-                      If set to TRUE (default), Indel candidates will be
-                      considered
--n NIND, --nIndividuals=NIND
-                      Number of Individuals sequenced
--p PLOIDY, --ploidy=PLOIDY
-                      Number of copief of each chromosome per individual
-                      same directory
-                      just list of chr, or nothing
---processRegionSize=PROCESSREGIONSIZE
-                      Size of region to use in each process. Chromosomes
-                      will be broken up into regions of this size and run in
-                      separate processes (or consecutively, if nCPU == 1)
---bufferSize=BUFFERSIZE
-                      Data will be buffered in regions of this size
---minReads=MINREADS   Minimum required number of reads in window
---maxHaplotypes=MAXHAPLOTYPES
-                      Maximium haplotypes to consider in a given window
---maxVariants=MAXVARIANTS
-                      Maximium variants to consider in a given window
---maxReads=MAXREADS   Maximium coverage in window
---maxSize=MAXSIZE     Largest indel to consider
---minMapQual=MINMAPQUAL
-                      Minimum mapping quality of read. Any reads with map
-                      qual below this are ignored
---maxBadQualBases=MAXBADQUALBASES
-                      Max number of bases per read that can have base-
-                      quality <= 20
---minGoodQualBases=MINGOODQUALBASES
-                      Minimum number of bases per read that must have base-
-                      quality >= 20
---minBaseQual=MINBASEQUAL
-                      Minimum allowed base-calling quality. Any bases with
-                      qual below this are ignored in SNP-calling
---maxReadLength=RLEN  Maximum read length
---minFlank=MINFLANK   Flank size for indel candidates
---labels=LABELS       regex to extract names from filenames
---source=SOURCEFILE   vcf file(s) to get candidates from
---freqAsPrior=FREQASPRIOR
-                      If 1, use the frequency of input variants as a prior
---dataType=DATATYPE   Are we looking at individual,trio,population, or pool
-                      data?
---getVariantsFromBAMs=GETVARIANTSFROMBAMS
-                      If set to TRUE (default), variant candidates will be
-                      generated from BAMs as well as any other inputs
---parseNCBI=PARSENCBI
---callOnlyIndels=CALLONLYINDELS
-                      If set to TRUE (default), only windows containing
-                      Indel candidates will be considered
---minPosterior=MINPOSTERIOR
-                      Only variants with posterior >= this will be outpu to
-                      the VCF. Value is a Phred-score.
---strandFilter=STRANDFILTER
-                      If set to TRUE only variants occuring at least once on
-                      each strand will be considered.
---sbThreshold=SBTHRESHOLD
-                      P-value for strand-bias filtering..
---abThreshold=ABTHRESHOLD
-                      P-value for allele-bias filtering..
---printVarsAndExit=PRINTVARSANDEXIT
-                      If 1, print a list of variant candidates, and exit.
---badReadsWindow=BADREADSWINDOW
-                      Size of window around variant to look for low-quality
-                      bases.
---badReadsThreshold=BADREADSTHRESHOLD
-                      Variants where the median minimum quality in a window
-                      of badReadsWindow around the variant position falls
-                      below this value will be filtered with the flag
-                      'badReads'
-
+Supplying variant candidates from VCF
+=====================================
