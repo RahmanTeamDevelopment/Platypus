@@ -185,10 +185,10 @@ and are already configured for optimal results. Below is a full descripton of al
 </thead>
 <tbody valign="top">
 <tr class="row-even"><td>&#8211;processRegionSize</td>
-<td>Integer, 30,000,000</td>
+<td>Integer</td>
+<td>30,000,000</td>
 <td><cite>&#8211;processRegionSize=10000000</cite></td>
 <td>Platypus breaks up the genome into regions of this size and processes them in parallel (if nCPU &gt; 1) or consecutively (if nCPU == 1)</td>
-<td>&#160;</td>
 </tr>
 <tr class="row-odd"><td>&#8211;bufferSize</td>
 <td>Integer</td>
@@ -204,34 +204,16 @@ and are already configured for optimal results. Below is a full descripton of al
 </tr>
 <tr class="row-odd"><td>&#8211;maxBadQualBases</td>
 <td>Integer</td>
-<td>?</td>
-<td>?</td>
-<td>&#160;</td>
+<td>20</td>
+<td><cite>&#8211;maxBadQualBases=10</cite></td>
+<td>If a read has &gt; this number of bases with quality &lt; 20 then it will be filtered out and not used for variant calling.</td>
 </tr>
-</tbody>
-</table>
-<table class="docutils option-list" frame="void" rules="none">
-<col class="option" />
-<col class="description" />
-<tbody valign="top">
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--maxBadQualBases=<var>MAXBADQUALBASES</var></span></kbd></td>
+<tr class="row-even"><td>&#8211;minGoodQualBases</td>
+<td>Integer</td>
+<td>20</td>
+<td><cite>&#8211;minGoodQualBases=10</cite></td>
+<td>If a read has &lt; this number of bases with quality &gt;= 20 then it will be filtered out and not used for variant calling.</td>
 </tr>
-<tr><td>&#160;</td><td>Max number of bases per read that can have base-
-quality &lt;= 20</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--minGoodQualBases=<var>MINGOODQUALBASES</var></span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Minimum number of bases per read that must have base-
-quality &gt;= 20</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--maxReadLength=<var>RLEN</var></span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Maximum read length</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--labels=<var>LABELS</var></span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>regex to extract names from filenames</td></tr>
 </tbody>
 </table>
 </div>
@@ -278,81 +260,107 @@ quality &gt;= 20</td></tr>
 <td><cite>&#8211;minMapQual=25</cite></td>
 <td>Only bases with base quality &gt;= this value will be examined when generating the initial list of SNP candidates</td>
 </tr>
-</tbody>
-</table>
-<table class="docutils option-list" frame="void" rules="none">
-<col class="option" />
-<col class="description" />
-<tbody valign="top">
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--maxHaplotypes=<var>MAXHAPLOTYPES</var></span></kbd></td>
+<tr class="row-even"><td>&#8211;maxVariants</td>
+<td>Integer</td>
+<td>8</td>
+<td><cite>&#8211;maxVariants=12</cite></td>
+<td>A limit on the number of variant candidates that Platypus will consider in any single window. For more detals see <a class="reference internal" href="#filtering-variant-candidates"><span class="std std-ref">Filtering variant candidates</span></a> for more details</td>
 </tr>
-<tr><td>&#160;</td><td>Maximium haplotypes to consider in a given window</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--maxVariants=<var>MAXVARIANTS</var></span></kbd></td>
+<tr class="row-odd"><td>&#8211;maxHaplotypes</td>
+<td>Integer</td>
+<td>256</td>
+<td><cite>&#8211;maxHaplotypes=500</cite></td>
+<td>A limit on the number of haplotpyes that Platypus will consider in any single window. For more details see <a class="reference internal" href="#generating-haplotypes"><span class="std std-ref">Generating haplotypes</span></a> for more details</td>
 </tr>
-<tr><td>&#160;</td><td>Maximium variants to consider in a given window</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--maxSize=<var>MAXSIZE</var></span></kbd></td>
+<tr class="row-even"><td>&#8211;minReads</td>
+<td>Integer</td>
+<td>1</td>
+<td><cite>&#8211;minReads=10</cite></td>
+<td>There must be &gt;= minReads reads with mapping quality &gt;= minMapQual supporting any variant for it to be considered. For SNPs the base qualities must be &gt;= minBaseQual</td>
 </tr>
-<tr><td>&#160;</td><td>Largest indel to consider</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--minReads=<var>MINREADS</var></span></kbd></td>
+<tr class="row-odd"><td>&#8211;maxSize</td>
+<td>Integer</td>
+<td>250</td>
+<td><cite>&#8211;maxSize=250</cite></td>
+<td>An upper limit on the size of indels that Platypus will call</td>
 </tr>
-<tr><td>&#160;</td><td>Minimum required number of reads in window</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--callOnlyIndels=<var>CALLONLYINDELS</var></span></kbd></td>
+<tr class="row-even"><td>&#8211;getVariantsFromBAMs</td>
+<td>Boolean</td>
+<td>1</td>
+<td><cite>&#8211;getVariantsFromBAMs=1</cite></td>
+<td>If set to 0 then Playpus will not scan the BAM for variant candidates. This only makes sense if there are candidates coming from elsewhere, e.g. an input VCF of variants</td>
 </tr>
-<tr><td>&#160;</td><td>If set to TRUE (default), only windows containing
-Indel candidates will be considered</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--strandFilter=<var>STRANDFILTER</var></span></kbd></td>
+<tr class="row-odd"><td>&#8211;strandFilter</td>
+<td>Boolean</td>
+<td>0</td>
+<td><cite>&#8211;strandFilter=1</cite></td>
+<td>If set to 1 then Platypus will require at least 1 read on each of the forward and reverse strands in order to consider a variant candidate</td>
 </tr>
-<tr><td>&#160;</td><td>If set to TRUE only variants occuring at least once on
-each strand will be considered.</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--getVariantsFromBAMs=<var>GETVARIANTSFROMBAMS</var></span></kbd></td>
+<tr class="row-even"><td>&#8211;minFlank</td>
+<td>Integer</td>
+<td>3</td>
+<td><cite>&#8211;minFlank=10</cite></td>
+<td>Any indel candidate in the BAM must have &gt;= minFlank reference-matching bases on either side of it to be considered</td>
 </tr>
-<tr><td>&#160;</td><td>If set to TRUE (default), variant candidates will be
-generated from BAMs as well as any other inputs</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--minFlank=<var>MINFLANK</var></span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>Flank size for indel candidates</td></tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="variant-filtering-options">
 <h2>4.4. Variant filtering options<a class="headerlink" href="#variant-filtering-options" title="Permalink to this headline">¶</a></h2>
-<table class="docutils option-list" frame="void" rules="none">
-<col class="option" />
-<col class="description" />
+<p>The VCF output of Platypus contains a number of metrics and flags that can be used to filter the variant calls. The following options can be used to control the filters.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="20%" />
+<col width="20%" />
+<col width="20%" />
+<col width="20%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Option</th>
+<th class="head">Type</th>
+<th class="head">Default Value</th>
+<th class="head">Example Usage</th>
+<th class="head">Description</th>
+</tr>
+</thead>
 <tbody valign="top">
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--minPosterior=<var>MINPOSTERIOR</var></span></kbd></td>
+<tr class="row-even"><td>&#8211;minPosterior</td>
+<td>Float</td>
+<td>5</td>
+<td><cite>&#8211;minPosterior=10</cite></td>
+<td>Only variant calls wth a posterior / QUAL value &gt;= this will be output to the VCF. This value is a <a class="reference internal" href="#phred-scores"><span class="std std-ref">Phred score</span></a>.</td>
 </tr>
-<tr><td>&#160;</td><td>Only variants with posterior &gt;= this will be outpu to
-the VCF. Value is a Phred-score.</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--sbThreshold=<var>SBTHRESHOLD</var></span></kbd></td>
+<tr class="row-odd"><td>&#8211;sbThreshold</td>
+<td>Float</td>
+<td>0.01</td>
+<td><cite>&#8211;sbThreshold=0.02</cite></td>
+<td>P-value threshold for the strand-bias filter. Variants with a strand-bias p-value &lt; this threshold will be flagged as <cite>sb</cite> in the VCF filter column. See <a class="reference internal" href="#filtering-variant-candidates"><span class="std std-ref">Filtering variant candidatess</span></a> for more details.</td>
 </tr>
-<tr><td>&#160;</td><td>P-value for strand-bias filtering..</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--abThreshold=<var>ABTHRESHOLD</var></span></kbd></td>
+<tr class="row-even"><td>&#8211;abThreshold</td>
+<td>Float</td>
+<td>0.001</td>
+<td><cite>&#8211;abThreshold=0.002</cite></td>
+<td>P-value threshold for the allele-bias filter. Variants with an allele-bias p-value &lt; this threshold will be flagged as <cite>ab</cite> in the VCF filter column. See <a class="reference internal" href="#filtering-variant-candidates"><span class="std std-ref">Filtering variant candidates</span></a> for more details.</td>
 </tr>
-<tr><td>&#160;</td><td>P-value for allele-bias filtering..</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--badReadsWindow=<var>BADREADSWINDOW</var></span></kbd></td>
+<tr class="row-odd"><td>&#8211;minPosterior</td>
+<td>Float</td>
+<td>5</td>
+<td><cite>&#8211;minPosterior=10</cite></td>
+<td>Only variant calls wth a posterior / QUAL value &gt;= this will be output to the VCF. This value is a <a class="reference internal" href="#phred-scores"><span class="std std-ref">Phred score</span></a>.</td>
 </tr>
-<tr><td>&#160;</td><td>Size of window around variant to look for low-quality
-bases.</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--badReadsThreshold=<var>BADREADSTHRESHOLD</var></span></kbd></td>
+<tr class="row-even"><td>&#8211;badReadsWindow</td>
+<td>Integer</td>
+<td>11</td>
+<td><cite>&#8211;badReadsWindow=7</cite></td>
+<td>Size of window around variant location to check for low quality bases. If the median minimum quality in this window is &lt; badReadsThreshold then the variant will be filtered with the flag &#8216;badReads&#8217; in the output VCF. See <a class="reference internal" href="#filtering-variant-candidates"><span class="std std-ref">Filtering variant candidates</span></a> for more details.</td>
 </tr>
-<tr><td>&#160;</td><td>Variants where the median minimum quality in a window
-of badReadsWindow around the variant position falls
-below this value will be filtered with the flag
-&#8216;badReads&#8217;</td></tr>
+<tr class="row-odd"><td>&#8211;badReadsThreshold</td>
+<td>Integer</td>
+<td>15</td>
+<td><cite>&#8211;badReadsThreshold=20</cite></td>
+<td>Threshold for the bad reads filter. See <a class="reference internal" href="#filtering-variant-candidates"><span class="std std-ref">Filtering variant candidates</span></a> for more details.</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -381,26 +389,26 @@ below this value will be filtered with the flag
 <td><cite>&#8211;source=thousand_genomes_snps.vcf.gz</cite></td>
 <td>Name of an input VCF file to be used as a source of variant candidates. See <a class="reference internal" href="#supplying-variant-candidates-from-vcf"><span class="std std-ref">Supplying variant candidates from VCF</span></a> for more details</td>
 </tr>
+<tr class="row-odd"><td>&#8211;freqAsPrior</td>
+<td>Boolean</td>
+<td>0</td>
+<td><cite>&#8211;freqAsPrior=1</cite></td>
+<td>Must be used in conjunction with <cite>&#8211;source</cite>. If this is set to 1 then Platypus will use the AF tag in the input VCF as a prior on the variant. See :ref:Supplying variant candidates from VCF&lt;supplying_variant_candidates_from_vcf&gt;` for more details</td>
+</tr>
+<tr class="row-even"><td>&#8211;parseNCBI</td>
+<td>Boolean</td>
+<td>0</td>
+<td><cite>&#8211;parseNCBI=1</cite></td>
+<td>This must be set to 1 if the reference file has sequence names in the NCBI format</td>
+</tr>
+<tr class="row-odd"><td>&#8211;printVarsAndExit</td>
+<td>Boolean</td>
+<td>0</td>
+<td><cite>&#8211;printVarsAndExit=1</cite></td>
+<td>If set to 1, Platypus will simply print a list of all variant candidates in the calling regions, and exit without making calls</td>
+</tr>
 </tbody>
 </table>
-<table class="docutils option-list" frame="void" rules="none">
-<col class="option" />
-<col class="description" />
-<tbody valign="top">
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--source=<var>SOURCEFILE</var></span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>vcf file(s) to get candidates from</td></tr>
-<tr><td class="option-group" colspan="2">
-<kbd><span class="option">--freqAsPrior=<var>FREQASPRIOR</var></span></kbd></td>
-</tr>
-<tr><td>&#160;</td><td>If 1, use the frequency of input variants as a prior</td></tr>
-</tbody>
-</table>
-<p>&#8211;parseNCBI=PARSENCBI
-&#8211;printVarsAndExit=PRINTVARSANDEXIT</p>
-<blockquote>
-<div>If 1, print a list of variant candidates, and exit.</div></blockquote>
 </div>
 <div class="section" id="deprecated-command-line-options">
 <h2>4.6. Deprecated command-line options<a class="headerlink" href="#deprecated-command-line-options" title="Permalink to this headline">¶</a></h2>
@@ -425,6 +433,15 @@ below this value will be filtered with the flag
 <tr class="row-even"><td>&#8211;dataType</td>
 <td>Was used to distinguish between individual, trio and pooled sequencing datasets</td>
 </tr>
+<tr class="row-odd"><td>&#8211;maxReadLength</td>
+<td>Was used to limit the size of reads that Platypus would process</td>
+</tr>
+<tr class="row-even"><td>&#8211;labels</td>
+<td>Was used to specify how to convert BAM file names into the VCF sample column headers</td>
+</tr>
+<tr class="row-odd"><td>&#8211;callOnlyIndels</td>
+<td>If set to 1 then Platypus will only call variants in regions where there are indel candidates</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -439,9 +456,30 @@ below this value will be filtered with the flag
 <li>If no regions are specified then Platypus will call variants across the whole genome. It will check the BAM header file and the reference FASTA file to determine the list of chromosomes and other contigs, as well as their lengths</li>
 </ul>
 </div></blockquote>
+<div class="section" id="description-of-variant-calling-algorithm">
+<h3>4.7.1. Description of Variant Calling Algorithm<a class="headerlink" href="#description-of-variant-calling-algorithm" title="Permalink to this headline">¶</a></h3>
+<p>Blah</p>
+</div>
+</div>
+<div class="section" id="generating-variants">
+<span id="id3"></span><h2>4.8. Generating variants<a class="headerlink" href="#generating-variants" title="Permalink to this headline">¶</a></h2>
+<p>Description of how Platypus generates variant candidates from BAMs, input VCFs etc</p>
+</div>
+<div class="section" id="filtering-variant-candidates">
+<span id="id4"></span><h2>4.9. Filtering variant candidates<a class="headerlink" href="#filtering-variant-candidates" title="Permalink to this headline">¶</a></h2>
+<p>Blah</p>
+</div>
+<div class="section" id="generating-haplotypes">
+<span id="id5"></span><h2>4.10. Generating haplotypes<a class="headerlink" href="#generating-haplotypes" title="Permalink to this headline">¶</a></h2>
+<p>Blah</p>
 </div>
 <div class="section" id="supplying-variant-candidates-from-vcf">
-<span id="id3"></span><h2>4.8. Supplying variant candidates from VCF<a class="headerlink" href="#supplying-variant-candidates-from-vcf" title="Permalink to this headline">¶</a></h2>
+<span id="id6"></span><h2>4.11. Supplying variant candidates from VCF<a class="headerlink" href="#supplying-variant-candidates-from-vcf" title="Permalink to this headline">¶</a></h2>
+<p>Blah</p>
+</div>
+<div class="section" id="phred-scores">
+<span id="id7"></span><h2>4.12. Phred scores<a class="headerlink" href="#phred-scores" title="Permalink to this headline">¶</a></h2>
+<p>Blah</p>
 </div>
 </div>
 
@@ -466,8 +504,15 @@ below this value will be filtered with the flag
 <li><a class="reference internal" href="#variant-filtering-options">4.4. Variant filtering options</a></li>
 <li><a class="reference internal" href="#miscellaneous-options">4.5. Miscellaneous options</a></li>
 <li><a class="reference internal" href="#deprecated-command-line-options">4.6. Deprecated command-line options</a></li>
-<li><a class="reference internal" href="#specifying-calling-regions">4.7. Specifying calling regions</a></li>
-<li><a class="reference internal" href="#supplying-variant-candidates-from-vcf">4.8. Supplying variant candidates from VCF</a></li>
+<li><a class="reference internal" href="#specifying-calling-regions">4.7. Specifying calling regions</a><ul>
+<li><a class="reference internal" href="#description-of-variant-calling-algorithm">4.7.1. Description of Variant Calling Algorithm</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#generating-variants">4.8. Generating variants</a></li>
+<li><a class="reference internal" href="#filtering-variant-candidates">4.9. Filtering variant candidates</a></li>
+<li><a class="reference internal" href="#generating-haplotypes">4.10. Generating haplotypes</a></li>
+<li><a class="reference internal" href="#supplying-variant-candidates-from-vcf">4.11. Supplying variant candidates from VCF</a></li>
+<li><a class="reference internal" href="#phred-scores">4.12. Phred scores</a></li>
 </ul>
 </li>
 </ul>

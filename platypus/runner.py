@@ -204,7 +204,7 @@ def callVariants(args):
     parser.add_option("--parseNCBI", dest="parseNCBI", help="", type=int, action='store', default=0)
     parser.add_option("--callOnlyIndels", dest="callOnlyIndels", help="If set to TRUE (default), only windows containing Indel candidates will be considered", action='store', type='int', default=0)
     parser.add_option("--strandFilter", dest="strandFilter", help="If set to TRUE only variants occuring at least once on each strand will be considered.", action='store', type='int', default=0)
-    parser.add_option("--minPosterior", dest="minPosterior", help="Only variants with posterior >= this will be outpu to the VCF. Value is a Phred-score.", action='store', type='int', default=5)
+    parser.add_option("--minPosterior", dest="minPosterior", help="Only variants with posterior >= this will be output to the VCF. Value is a Phred-score.", action='store', type='int', default=5)
     parser.add_option("--sbThreshold", dest="sbThreshold", help="P-value for strand-bias filtering..", action='store', type='float', default=1e-2)
     parser.add_option("--abThreshold", dest="abThreshold", help="P-value for allele-bias filtering..", action='store', type='float', default=1e-3)
     parser.add_option("--printVarsAndExit", dest="printVarsAndExit", help="If 1, print a list of variant candidates, and exit.", action='store', type='int', default=0)
