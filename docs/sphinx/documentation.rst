@@ -215,28 +215,32 @@ Two sources contribute to the list of candidate variants that are considered by 
 * Single‐nucleotide variants (SNVs) and short indels as reported in the CIGAR string and read sequences of the BAM files
 * Any auxiliary variants provided from a (bgzip‐compressed, tabix‐indexed) VCF file.
 
-Each of these sources are optional and controlled by the user (options: getVariantsFromBAMs; source); e.g. Platypus can be made to genotype only a list of specific alleles fed from a source VCF, while for a normal variant calling run, only variants from read alignments are used. Candidate indel variants that occur closer than 3 bp (configurable with option minFlank) to either of the read’s edges are discarded.
+Each of these sources is optional and controlled by the user (options: getVariantsFromBAMs; source); e.g. Platypus can be made to genotype only a list of specific alleles fed from a source VCF, while for a normal variant calling run, only variants from read alignments are used. Candidate indel variants that occur closer than 3 bp (configurable with option minFlank) to either of the read’s edges are discarded.
+
+
+.. _supplying_variant_candidates_from_vcf:
 
 Candidate variants from VCF files 
 ---------------------------------
 
-When a VCF file is provided as input, Platypus collects all variants listed in it,independent of genotype or filter status, and adds these to the list of candidate variants.
+When a VCF file is provided as input, Platypus collects all variants listed in it, independent of genotype or filter status, and adds these to the list of candidate variants.
 
 Priors on candidates 
 --------------------
 
-Platypus assigns priors at the candidate variant generation stage. The following priors are used:
+Platypus assigns priors at the candidate variant generation stage. The following priors are used by default:
 
-* SNPs: 0.33×10‐3. This slightly conservative for multi-sample calling.
-* Indels (pure insertion or deletion of sequence): we use a model that estimates the local indel rate from local sequence similarity as described in ref. 5, and Supplementary Information section 8. This assigns for example a prior of 4×10‐4 to 1‐bp indels in a homopolymer context of length 4, and a prior of 0.6×10‐2 to 1‐bp indels in a homopolymer context of length 10. Deletions in complex contexts (homopolymer run length of 3 or less) are assigned a prior of 5×10‐5×LI(n), corresponding to one deletion in complex sequence for every 20,000 bp (see 5), and an indel length distribution LI(n), for whereLI(n)=0.25×(3/4)n.Similarly,insertionsareassignedapriorof5×10‐6× LI(n),to reflect the fact that insertions in complex sequence are about 10x less frequent than deletions (see 5). The indel length distribution LI(n) penalizes long indels too strongly; to ensure that long indels are called, we capped the prior from below at a value of 10‐10.
+* SNPs: :math:`0.33*10^{-3}`
+* Insertions :math:`1.0*10^{-4}*0.25^{length}`
+* Deletions: :math:`1.0*10^{-4}*0.33^{length}`
 
 
 Windowing 
 =========
 
-Platypus calls alleles and thereby variants in small genomic windows. This section explains how these windows are constructed.
-First, any length‐changing variant is left‐aligned, and the set of candidates is filtered for low support. Candidates are kept if they are supported by at least 2 (option: minReads) reads with bases of quality 20 (option: minBaseQual) or above. Candidates from the assembly stage are kept if the accumulated base quality exceeds 40 (minReads*minBaseQual) for each of the variant’s nucleotides. Next, the candidates are sorted by position, and grouped by position. Groups are subsequently merged if they contain overlapping variants.
-Platypus then constructs windows by combining groups containing variants that are within 15 bp of each other. If, as a result, the window has become longer than the read length, or the total number of candidate variants within the window exceeds 8, the window is split into smaller windows. If the window is not skipped, but contains more than 8 variants, Platypus prioritizes candidates from assembly, and further prioritizes candidates by read support. In this way the maximum number of candidate variants considered per window is limited to 8 (option maxVariants). For certain designs, including those with large numbers of samples, and those targeting highly diverse regions, it will be beneficial to increase this threshold.
+Platypus calls variants in small genomic windows. This section explains how these windows are constructed. First, any length‐changing variant is left‐aligned, and the set of candidates is filtered for low support. Candidates are kept if they are supported by at least 2 (option: minReads) reads with bases of quality 20 (option: minBaseQual) or above. Next, the candidates are sorted by position, and grouped by position. Groups are subsequently merged if they contain overlapping variants.
+
+If the window contains more than 8 variants, Platypus prioritizes candidates by read support. In this way the maximum number of candidate variants considered per window is limited to 8 (option maxVariants). For certain designs, including those with large numbers of samples, and those targeting highly diverse regions, it will be beneficial to increase this threshold.
 
 
 .. _generating_haplotypes:
@@ -244,26 +248,30 @@ Platypus then constructs windows by combining groups containing variants that ar
 Haplotype generation 
 ====================
 
-The most straightforward way to build haplotypes out of a set of candidate variants is to generate all combinations of candidate variants, and apply each set of variants to the reference sequence. For n variants, this results in 2n haplotypes (disregarding excluded combinations due to overlap). For small n this is acceptable, but the procedure results in excessive runtime in a minority of windows with many candidate variants. To address this, we implemented an alternative stepwise prioritization algorithm that is applied for larger n, and that keeps the number of haplotypes that need to be considered under control. With default settings, which allows a maximum of 8 variants in a single window, this algorithm is not used, and all possible combinations are considered.
-If the total number of haplotypes that must be considered exceeds a specified limit (the default is 256, or 28), we first pick the variant that is most strongly supported by the data, and build a haplotype from this variant. This haplotype goes into a set H. Next, Platypus goes through all remaining variants, and iteratively adds all combinations of existing haplotypes with that variant to H. Every time a new haplotype h is added, the set of all haplotypes currently in H is ranked by the maximum of likelihoods of the heterozygote (r, h) genotype across all samples, where r denotes the reference. At each step the top K haplotypes are kept, where K=256 by default; this number is configurable (option: maxHaplotypes). The intuition behind this approach is that in most cases, reads either support the reference or an alternative haplotype, and the likelihood of (r,h) is a reasonable proxy of the true marginalized likelihood. In cases where the true genotype is heterozygous non‐reference (h1,h2), each candidate haplotype that approximates h1 is penalized equally by forcing h2 to be explained by r, so that the true h1 has a good chance of making it in the list. In the event of duplicate haplotypes being produced, i.e. the same exact sequence is produced by more than one combination of variants, the combination with the highest overall prior probability is used.
+The most straightforward way to build haplotypes out of a set of candidate variants is to generate all combinations of candidate variants, and apply each set of variants to the reference sequence. For n variants, this results in :math:`2^n` haplotypes (disregarding excluded combinations due to overlap). For small n this is acceptable, but the procedure results in excessive runtime in a minority of windows with many candidate variants. To address this, we implemented an alternative stepwise prioritization algorithm that is applied for larger n, and that keeps the number of haplotypes that need to be considered under control. With default settings, which allows a maximum of 8 variants in a single window, this algorithm is not used, and all possible combinations are considered.
+
+If the total number of haplotypes that must be considered exceeds a specified limit (the default is 256, or :math:`2^8`), Platypus constructs all the single variant haplotypes, and computes posterior probabilities for each variant using the normal variant calling model described below. Because only single-variant haplotypes are considered this is much faster than the full model, but also less accurate. The variants are then sorted by posterior, and the top 8 are then used in the full calculation. In the event of duplicate haplotypes being produced, i.e. the same exact sequence is produced by more than one combination of variants, the combination with the highest overall prior probability is used (the prior probability of the haplotype is the product of the prior probabilities of the variants that make up the haplotype).
+
 
 
 Calculation of haplotype likelihoods 
 ====================================
 
-This section, together with the following sections, explains how the genotype likelihoods are calculated.
-The first step in the calculation of the genotype likelihood, is the calculation of the haplotype likelihood p( r | h ), where r and h denote read and haplotype respectively. These are calculated by aligning a read to the haplotype sequence. The underlying model is a hidden Markov model (HMM), and the likelihood of a read given a haplotype can be calculated using the Forward algorithm. Because this likelihood calculation needs to be performed many times, we used the Viterbi algorithm instead, which admits a more efficient implementation, and which calculates the probability of the most likely path through the HMM, i.e. the probability of the most likely alignment given the data, rather than the likelihood which would marginalize over all possible alignments. In practice, and with the proper choice of gap priors, the Viterbi algorithm is a good practical approximation of the full Forward algorithm.
+The first step in the calculation of the genotype likelihood, is the calculation of the haplotype likelihood, or the probability of the reads given the haplotype: :math:`p(r|h)`, where r and h denote read and haplotype respectively. This probability is calculated, for each read, by aligning a read to the haplotype sequence, using a modified (and extrenely efficient) version of the Needleman-Wunsch alignment algorithm.
+
 The alignment algorithm includes models for base mismatches and indel errors. Mismatches are scored by adding up the Phred quality scores of mismatching bases. The likelihood of indel errors is modeled using position‐dependent gap‐opening Phred scores. These are pre‐ calculated based on the propensity of indel errors to occur given the (reference) sequence context. This model, the same as is used by Dindel2 is a simplified version of the model for the indel prior, and considers homopolymers only, rather than homopolymers and more general tandem repeats. Note that the alignment algorithm does not model SNPs and indel mutations, since the haplotype h represents the hypothesized true sequence.
 
 
 Estimation of haplotype frequencies 
 ===================================
 
-After P( r | h ) is calculated for all combinations of reads and haplotypes, an Expectation‐ Maximization (EM) algorithm is run to estimate the frequency of each haplotype h1,...,ha, under a diploid genotype model:
+After :math:`P(r|h)` is calculated for all combinations of reads and haplotypes, an Expectation‐Maximization (EM) algorithm is run to estimate the frequency of each haplotype, under a diploid genotype model:
 
-EQUATION
+.. math::
 
-Here, fi denotes the frequency of haplotype hi in the population; a is the number of alleles considered, R and Rs denote the set of all reads, and reads from sample s respectively, and the sum over haplotypes extends over all ordered pairs (i,j), i.e. genotypes. In the formula above we implicitly integrate out the latent variable that determines the two haplotypes of the sample s. This formula holds for both heterozygous and homozygous genotypes.
+	L(R|\{h_i,f_i\}) = \prod_{samples\;s}\sum_{haplotypes\;i,j}f_if_j\prod_{reads\;r\in R_s}(\frac{1}{2}p(r|h_i) + \frac{1}{2}p(r|h_j))
+
+Here, :math:`f_i` denotes the frequency of haplotype :math:`h_i` in the population; :math:`a` is the number of alleles considered, :math:`R` and :math:`R_s` denote the set of all reads, and reads from sample :math:`s` respectively, and the sum over haplotypes extends over all ordered pairs (i,j), i.e. genotypes. In the formula above we implicitly integrate out the latent variable that determines the two haplotypes of the sample s. This formula holds for both heterozygous and homozygous genotypes.
 
 
 Calling variants and genotypes 
@@ -271,11 +279,15 @@ Calling variants and genotypes
 
 The posterior support for any variant is computed by comparing the likelihood of the data given all haplotypes, and the likelihood given only those haplotypes that do not include a particular variant, i.e., the likelihood in a nested model where the frequencies of haplotypes that do not include the variant are fixed to 0. For the latter model, the frequencies not fixed to 0 are scaled up to account for the estimated frequency of the excluded haplotypes:
 
-EQUATION
+.. math::
 
-where P(v) is the prior probability of observing variant v, Iv is the set of haplotype indices i for which hi does not contain v, and 𝐹! =   !∈!! 𝑓!. The likelihood of reads given haplotypes and their frequencies is computed as
+	P(v|R)=\frac{P(v)L(R|\{h_i,f_i\}_{i=1...a})}{P(v)L(R|\{h_i,f_i\}_{i=1..a}) + (1-P(v))L(R|{h_i, \frac{f_i}{1-F_v}}_{i\in I_v})}
 
-EQUATION
+where :math:`P(v)` is the prior probability of observing variant :math:`v`, :math:`I_v` is the set of haplotype indices :math:`i` for which :math:`h_i` does not contain :math:`v`, and _math:`F_v=\sum_{i\in I_v}f_i`. The likelihood of reads given haplotypes and their frequencies is computed as
+
+.. math::
+
+	L(R|\{h_i,f_i\}_{i=1...a}) = \prod_{samples\;s}\sum_{haplotypes\;i,j}f_if_j\prod_{reads\;r\in R}(\frac{1}{2}p(r|h_i) + \frac{1}{2}p(r|h_j))
 
 Variants are called when their posterior support exceeds a threshold (by default Phred score 5), using these frequencies as a prior.
 
@@ -293,14 +305,14 @@ Platypus will only output variants with a phred-scaled posterior probability > 5
 Allele bias (ab) 
 ----------------
 
-The allele bias filter identifies variants that show support in too few reads compared to the expectation under heterozygous segregation in a diploid organism. Specifically, it rejects variants if (i) the fraction of reads supporting the variant allele is less than the minimum of 0.5 and a user‐specified threshold frequency (default 20%; configurable via the –minVarFreq option); and (ii) the p value under a binomial model with a Beta prior is less than 0.001. We used a Beta prior to account for small biases which may exist even for good calls, for instance due to mapping or PCR biases. The parameters for the Beta distribution are fixed at α=20 and β=20.
+The allele bias filter identifies variants that show support in too few reads compared to the expectation under heterozygous segregation in a diploid organism. Specifically, it rejects variants if (i) the fraction of reads supporting the variant allele is less than the minimum of 0.5 and (ii) the p value under a binomial model less than 0.001.
 
 
 Strand bias (sb) 
 ----------------
 
 The strand bias filter identifies variants whose support is skewed in terms of reads mapping to the forward and reverse strands, relative to the distribution seen in all reads. We use the distribution seen overall, rather than say a binomial distribution centered around a fraction of 0.5, because certain experimental designs can give rise to bona fide strand biases. Examples include exon capture, and mapping biases due to the existence of an anchoring point to one end of the sequence, but not the other.
-Specifically, the reads supporting the variant are tested against a Beta‐binomial distribution with parameters α and β such that that smallest of these parameters is 20, and the parameters are such that the mean of the distribution equals the ratio observed in all reads. Variants are accepted if the p value exceeds 0.001.
+Specifically, the reads supporting the variant are tested against a binomial distribution where the mean of the distribution equals the ratio observed in all reads. Variants are accepted if the p value exceeds 0.001.
 
 
 Bad reads (badReads) 
@@ -313,11 +325,3 @@ Homopolymers filter (hp10)
 --------------------------
 
 Polymerase slippage in low‐complexity regions are a known cause of spurious indel calls, and in the alignment model we account for a higher incidence of these errors. However, in certain instances, particularly in long homopolymers, our error model does not compensate for the high rate of sequencing errors, and spurious indel calls may result. To avoid a high false-positive rate in such regions, Platypus flags any varian call as suspicious if the haplotype containing the variant has a homopolymer of length 10 or greater that crosses the variant site.
-
-
-.. _supplying_variant_candidates_from_vcf:
-
-Supplying variant candidates from VCF
-=====================================
-
-Blah
