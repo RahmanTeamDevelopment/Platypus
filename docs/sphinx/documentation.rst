@@ -50,7 +50,7 @@ Once downloaded and correctly installed, Platypus can be run with the following 
 This is the simplest way to run Platypus, specifying only the names of the input BAM file and input reference files, and the output VCF file. Variant
 calls will then be outupt to a file called `variant_calls.vcf`. 
 
-* The input bam file should follow the `BAM format <http://samtools.github.io/hts-specs/SAMv1.pdf>`_ and should contain mapped reads sorted by genomic coordinate. Platypus has been tested using BAM files produced by `Stampy <http://www.well.ox.ac.uk/project-stampy>`_ and `BWA <http://bio-bwa.sourceforge.net>`_, but should also work with other short read aligners. The BAM index file (.bai) should also be present in the same directory; this can be created using `Samtools <http://www.htslib.org>`_.
+* The input bam file should follow the `BAM format <http://samtools.github.io/hts-specs/SAMv1.pdf>`_ and should contain mapped reads sorted by genomic coordinate. Platypus has been tested using BAM files produced by `Stampy <http://www.well.ox.ac.uk/project-stampy>`_ and `BWA <http://bio-bwa.sourceforge.net>`_, but should also work with other short read aligners. The BAM index file (.bai) should also be present in the same directory, and should have the same name as the BAM file, with ``.bai`` appended, e.g ``data.bam`` and ``data.bam.bai``. The index file can be created using `Samtools <http://www.htslib.org>`_.
 
 
 ********************
@@ -68,14 +68,14 @@ Basic options
     :header: "Option", "Type", "Default Value", "Example Usage", "Description"
     :delim: |
 
-    -h --help |  NA | NA | `--help` | If this option is set then Platypus will print a help message and then exit
-    --bamFiles |  Comma-separated list of strings | None | `--bamFiles=test1.bam,test2.bam` | A list of BAM file names. All the specified BAM files will be searched for variants. The output will go into a single VCF file
-    --refFile | String | None | `--refFile=human_37.fa` | Name of the input reference FASTA file. This file must be indexed (using `Samtools faidx` for example) and must contain the same reference sequence that was used to map the reads in the input BAM file(s)
-    -o --output | String | AllVariants.vcf | `--output=variant_calls.vcf` | Name of the output VCF file
-    --regions | Comma-separated list of strings or the name of a text file | None | `--regions=chr1:1000-2000,chr2:2000-4000` | Platypus will produce variant calls only in the specified regions. See :ref:`Specifying calling regions<specifying_calling_regions>` for a more detailed description 
-    --verbosity | Integer from 0 to 3 | 2 | `--verbosity=3` | Sets the level of output logging for Platypus. Increase this value for more verbose log output
-    --logFileName | String | log.txt | `--logFileName=platypus_log_file.txt` | Name of the output log file.
-    --nCPU | Integer | 1 | `--nCPU=3` | Number of processes to use for variant calling. If > 1 then Platypus will run in multiple processes and merge the VCF files into one file at the end
+    ``-h --help`` |  NA | NA | ``--help`` | If this option is set then Platypus will print a help message and then exit
+    ``--bamFiles`` |  Comma-separated list of strings | None | ``--bamFiles=test1.bam,test2.bam`` | A list of BAM file names. All the specified BAM files will be searched for variants. The output will go into a single VCF file
+    ``--refFile`` | String | None | ``--refFile=human_37.fa`` | Name of the input reference FASTA file. This file must be indexed (using `Samtools faidx` for example) and must contain the same reference sequence that was used to map the reads in the input BAM file(s)
+    ``-o --output`` | String | AllVariants.vcf | ``--output=variant_calls.vcf`` | Name of the output VCF file
+    ``--regions`` | Comma-separated list of strings or the name of a text file | None | ``--regions=chr1:1000-2000,chr2:2000-4000`` | Platypus will produce variant calls only in the specified regions. See :ref:`Specifying calling regions<specifying_calling_regions>` for a more detailed description 
+    ``--verbosity`` | Integer from 0 to 3 | 2 | ``--verbosity=3`` | Sets the level of output logging for Platypus. Increase this value for more verbose log output
+    ``--logFileName`` | String | log.txt | ``--logFileName=platypus_log_file.txt`` | Name of the output log file.
+    ``--nCPU`` | Integer | 1 | ``--nCPU=3`` | Number of processes to use for variant calling. If > 1 then Platypus will run in multiple processes and merge the VCF files into one file at the end
 
 
 .. _bam_data_quality_filtering:
@@ -89,11 +89,11 @@ Platypus does not necessarily use every read, in the BAM for variant calling. Wh
     :header: "Option", "Type", "Default Value", "Example Usage", "Description"
     :delim: |
 
-    --processRegionSize | Integer | 30,000,000 | `--processRegionSize=10000000` | Platypus breaks up the genome into regions of this size and processes them in parallel (if nCPU > 1) or consecutively (if nCPU == 1)
-    --bufferSize | Integer | 1,000,000 | `--bufferSize=100000` | The maximum size of region (per process, and as a genomic interval) that Platypus will read into memory at any point. This can be used to control memory usage
-    --maxReads | Integer | 5,000,000 | `--maxReads=100000` | This sets an upper limit on the amount of data that Platypus will try to process in one region. If the number of reads in a region of `bufferSize` is larger than this then Platypus will skip the region. This option can be used, in conjunction with `bufferSize` to control memory usage.
-    --maxBadQualBases | Integer | 20  |  `--maxBadQualBases=10` | If a read has > this number of bases with quality < 20 then it will be filtered out and not used for variant calling.
-    --minGoodQualBases | Integer | 20  |  `--minGoodQualBases=10` | If a read has < this number of bases with quality >= 20 then it will be filtered out and not used for variant calling.
+    ``--processRegionSize`` | Integer | 30,000,000 | ``--processRegionSize=10000000`` | Platypus breaks up the genome into regions of this size and processes them in parallel (if nCPU > 1) or consecutively (if nCPU == 1)
+    ``--bufferSize`` | Integer | 1,000,000 | ``--bufferSize=100000`` | The maximum size of region (per process, and as a genomic interval) that Platypus will read into memory at any point. This can be used to control memory usage
+    ``--maxReads`` | Integer | 5,000,000 | ``--maxReads=100000`` | This sets an upper limit on the amount of data that Platypus will try to process in one region. If the number of reads in a region of `bufferSize` is larger than this then Platypus will skip the region. This option can be used, in conjunction with `bufferSize` to control memory usage.
+    ``--maxBadQualBases`` | Integer | 20  |  ``--maxBadQualBases=10`` | If a read has > this number of bases with quality < 20 then it will be filtered out and not used for variant calling.
+    ``--minGoodQualBases`` | Integer | 20  |  ``--minGoodQualBases=10`` | If a read has < this number of bases with quality >= 20 then it will be filtered out and not used for variant calling.
 
 
 
@@ -104,17 +104,17 @@ Variant calling options
     :header: "Option", "Type", "Default Value", "Example Usage", "Description"
     :delim: |
 
-    --genSNPs | Boolean | 1 (True) | `--genSNPs=1` | If set to 1, Platypus will call SNPs. If set to 0 Platypus will not call SNPs
-    --genIndels | Boolean | 1 (True) | `--genIndels=1` | If set to 1, Platypus will call Indels. If set to 0 Platypus will not call Indels
-    --minBaseQual | Integer | 20 | `--minBaseQual=25` | Only bases with base quality >= this value will be examined when generating the initial list of SNP candidates
-    --minMapQual | Integer | 20 | `--minMapQual=25` | Only bases with base quality >= this value will be examined when generating the initial list of SNP candidates
-    --maxVariants | Integer | 8 | `--maxVariants=12` | A limit on the number of variant candidates that Platypus will consider in any single window. For more detals see :ref:`Filtering variant candidates<filtering_variant_candidates>` for more details
-    --maxHaplotypes | Integer | 256 | `--maxHaplotypes=500` | A limit on the number of haplotpyes that Platypus will consider in any single window. For more details see :ref:`Generating haplotypes<generating_haplotypes>` for more details
-    --minReads | Integer | 1 | `--minReads=10` | There must be >= minReads reads with mapping quality >= minMapQual supporting any variant for it to be considered. For SNPs the base qualities must be >= minBaseQual 
-    --maxSize | Integer | 250 | `--maxSize=250` | An upper limit on the size of indels that Platypus will call
-    --getVariantsFromBAMs | Boolean | 1 | `--getVariantsFromBAMs=1` | If set to 0 then Playpus will not scan the BAM for variant candidates. This only makes sense if there are candidates coming from elsewhere, e.g. an input VCF of variants
-    --strandFilter | Boolean | 0 | `--strandFilter=1` | If set to 1 then Platypus will require at least 1 read on each of the forward and reverse strands in order to consider a variant candidate
-    --minFlank | Integer | 3 | `--minFlank=10` | Any indel candidate in the BAM must have >= minFlank reference-matching bases on either side of it to be considered
+    ``--genSNPs`` | Boolean | 1 (True) | ``--genSNPs=1`` | If set to 1, Platypus will call SNPs. If set to 0 Platypus will not call SNPs
+    ``--genIndels`` | Boolean | 1 (True) | ``--genIndels=1`` | If set to 1, Platypus will call Indels. If set to 0 Platypus will not call Indels
+    ``--minBaseQual`` | Integer | 20 | ``--minBaseQual=25`` | Only bases with base quality >= this value will be examined when generating the initial list of SNP candidates
+    ``--minMapQual`` | Integer | 20 | ``--minMapQual=25`` | Only reads with mapping quality >= this value will be used for variant calling 
+    ``--maxVariants`` | Integer | 8 | ``--maxVariants=12`` | A limit on the number of variant candidates that Platypus will consider in any single window. For more detals see :ref:`Filtering variant candidates<filtering_variant_candidates>` for more details
+    ``--maxHaplotypes`` | Integer | 256 | ``--maxHaplotypes=500`` | A limit on the number of haplotpyes that Platypus will consider in any single window. For more details see :ref:`Generating haplotypes<generating_haplotypes>` for more details
+    ``--minReads`` | Integer | 1 | ``--minReads=10`` | There must be >= minReads reads with mapping quality >= minMapQual supporting any variant for it to be considered. For SNPs the base qualities must be >= minBaseQual 
+    ``--maxSize`` | Integer | 250 | ``--maxSize=250`` | An upper limit on the size of indels that Platypus will call
+    ``--getVariantsFromBAMs`` | Boolean | 1 | ``--getVariantsFromBAMs=1`` | If set to 0 then Playpus will not scan the BAM for variant candidates. This only makes sense if there are candidates coming from elsewhere, e.g. an input VCF of variants
+    ``--strandFilter`` | Boolean | 0 | ``--strandFilter=1`` | If set to 1 then Platypus will require at least 1 read on each of the forward and reverse strands in order to consider a variant candidate
+    ``--minFlank`` | Integer | 3 | ``--minFlank=10`` | Any indel candidate in the BAM must have >= minFlank reference-matching bases on either side of it to be considered
 
 
 
@@ -127,12 +127,11 @@ The VCF output of Platypus contains a number of metrics and flags that can be us
     :header: "Option", "Type", "Default Value", "Example Usage", "Description"
     :delim: |
 
-    --minPosterior | Float | 5 | `--minPosterior=10` | Only variant calls wth a posterior / QUAL value >= this will be output to the VCF. This value is a `Phred score <https://en.wikipedia.org/wiki/Phred_quality_score>`_.
-    --sbThreshold | Float | 0.01 | `--sbThreshold=0.02` | P-value threshold for the strand-bias filter. Variants with a strand-bias p-value < this threshold will be flagged as `sb` in the VCF filter column. See :ref:`Filtering variant candidatess<filtering_variant_candidates>` for more details.
-    --abThreshold | Float | 0.001 | `--abThreshold=0.002` | P-value threshold for the allele-bias filter. Variants with an allele-bias p-value < this threshold will be flagged as `ab` in the VCF filter column. See :ref:`Filtering variant candidates<filtering_variant_candidates>` for more details.
-    --minPosterior | Float | 5 | `--minPosterior=10` | Only variant calls wth a posterior / QUAL value >= this will be output to the VCF. This value is a `Phred score <https://en.wikipedia.org/wiki/Phred_quality_score>`_.
-    --badReadsWindow | Integer | 11 | `--badReadsWindow=7` | Size of window around variant location to check for low quality bases. If the median minimum quality in this window is < badReadsThreshold then the variant will be filtered with the flag 'badReads' in the output VCF. See :ref:`Filtering variant candidates<filtering_variant_candidates>` for more details.
-    --badReadsThreshold | Integer | 15 | `--badReadsThreshold=20` | Threshold for the bad reads filter. See :ref:`Filtering variant candidates<filtering_variant_candidates>` for more details.
+    ``--minPosterior`` | Float | 5 | ``--minPosterior=10`` | Only variant calls wth a posterior / QUAL value >= this will be output to the VCF. This value is a `Phred score <https://en.wikipedia.org/wiki/Phred_quality_score>`_.
+    ``--sbThreshold`` | Float | 0.01 | ``--sbThreshold=0.02`` | P-value threshold for the strand-bias filter. Variants with a strand-bias p-value < this threshold will be flagged as `sb` in the VCF filter column. See :ref:`Filtering variant candidatess<filtering_variant_candidates>` for more details.
+    ``--abThreshold`` | Float | 0.001 | ``--abThreshold=0.002`` | P-value threshold for the allele-bias filter. Variants with an allele-bias p-value < this threshold will be flagged as `ab` in the VCF filter column. See :ref:`Filtering variant candidates<filtering_variant_candidates>` for more details.
+    ``--badReadsWindow`` | Integer | 11 | ``--badReadsWindow=7`` | Size of window around variant location to check for low quality bases. If the median minimum quality in this window is < badReadsThreshold then the variant will be filtered with the flag 'badReads' in the output VCF. See :ref:`Filtering variant candidates<filtering_variant_candidates>` for more details.
+    ``--badReadsThreshold`` | Integer | 15 | ``--badReadsThreshold=20`` | Threshold for the bad reads filter. See :ref:`Filtering variant candidates<filtering_variant_candidates>` for more details.
 
 
 
@@ -143,10 +142,10 @@ Miscellaneous options
     :header: "Option", "Type", "Default Value", "Example Usage", "Description"
     :delim: |
 
-    --source | String | None | `--source=thousand_genomes_snps.vcf.gz` | Name of an input VCF file to be used as a source of variant candidates. See :ref:`Supplying variant candidates from VCF<supplying_variant_candidates_from_vcf>` for more details
-    --freqAsPrior | Boolean | 0 | `--freqAsPrior=1` | Must be used in conjunction with `--source`. If this is set to 1 then Platypus will use the AF tag in the input VCF as a prior on the variant. See :ref:Supplying variant candidates from VCF<supplying_variant_candidates_from_vcf>` for more details
-    --parseNCBI | Boolean | 0 | `--parseNCBI=1` | This must be set to 1 if the reference file has sequence names in the NCBI format
-    --printVarsAndExit | Boolean | 0 | `--printVarsAndExit=1` | If set to 1, Platypus will simply print a list of all variant candidates in the calling regions, and exit without making calls
+    ``--source`` | String | None | ``--source=thousand_genomes_snps.vcf.gz`` | Name of an input VCF file to be used as a source of variant candidates. See :ref:`Supplying variant candidates from VCF<supplying_variant_candidates_from_vcf>` for more details
+    ``--freqAsPrior`` | Boolean | 0 | ``--freqAsPrior=1`` | Must be used in conjunction with ``--source``. If this is set to 1 then Platypus will use the AF tag in the input VCF as a prior on the variant.
+    ``--parseNCBI`` | Boolean | 0 | ``--parseNCBI=1`` | This must be set to 1 if the reference file has sequence names in the NCBI format
+    ``--printVarsAndExit`` | Boolean | 0 | ``--printVarsAndExit=1`` | If set to 1, Platypus will simply print a list of all variant candidates in the calling regions, and exit without making calls
 
 
 Deprecated command-line options
@@ -158,12 +157,12 @@ The following command-line options are deprecated, and should not be used.
     :header: "Option", "Description"
     :delim: |
 
-    -n --nIndividuals | Was used to set the number of individuals in the input BAM files. Now each BAM file is assumed to contain data from only one individual
-    -p --ploidy | Was used to set the ploidy of the samples in the BAM files. Now this is fixed at 2.
-    --dataType | Was used to distinguish between individual, trio and pooled sequencing datasets
-    --maxReadLength | Was used to limit the size of reads that Platypus would process
-    --labels | Was used to specify how to convert BAM file names into the VCF sample column headers
-    --callOnlyIndels | If set to 1 then Platypus will only call variants in regions where there are indel candidates
+    ``-n --nIndividuals`` | Was used to set the number of individuals in the input BAM files. Now each BAM file is assumed to contain data from only one individual
+    ``-p --ploidy`` | Was used to set the ploidy of the samples in the BAM files. Now this is fixed at 2.
+    ``--dataType`` | Was used to distinguish between individual, trio and pooled sequencing datasets
+    ``--maxReadLength`` | Was used to limit the size of reads that Platypus would process
+    ``--labels`` | Was used to specify how to convert BAM file names into the VCF sample column headers
+    ``--callOnlyIndels`` | If set to 1 then Platypus will only call variants in regions where there are indel candidates
 
 
 .. _specifying_calling_regions:
@@ -173,9 +172,9 @@ Specifying calling regions
 
 It often useful to call variants on only a subset of the genome, e.g. a particular gene or exon. Platypus supports this mode through the `--regions` option. This option can be used in several ways:
 
-    * A comma-separated list of chromosome:start-end coordinates can be given, e.g. `--regions=chr1:0-100,chr2:300-400,chrX:1000-20000`. Platypus will search for variants in just these regions
-    * A comma-separated list of chromosomes can be given, e.g. `--regions=chr1,chr2,chr20,chrY`. Platypus will search for variants in just these chromosomes, and the lengths of the chromosomes will be taken from either the BAM file header or the reference FASTA file index
-    * A text file name may be specified, e.g. `--regions=my_regions.txt`. This file must contain only lines with the format `chrom:start-end`, e.g. `chr1:1000-20000` with one region per line.
+    * A comma-separated list of chromosome:start-end coordinates can be given, e.g. ``--regions=chr1:0-100,chr2:300-400,chrX:1000-20000``. Platypus will search for variants in just these regions
+    * A comma-separated list of chromosomes can be given, e.g. ``--regions=chr1,chr2,chr20,chrY``. Platypus will search for variants in just these chromosomes, and the lengths of the chromosomes will be taken from either the BAM file header or the reference FASTA file index
+    * A text file name may be specified, e.g. ``--regions=my_regions.txt``. This file must contain only lines with the format ``chrom:start-end``, e.g. ``chr1:1000-20000`` with one region per line.
     * If no regions are specified then Platypus will call variants across the whole genome. It will check the BAM header file and the reference FASTA file to determine the list of chromosomes and other contigs, as well as their lengths
 
 
@@ -200,7 +199,7 @@ Read processing
 
 Platypus takes as input one or more BAM files containing reads mapped to a reference genome, and an indexed FASTA file of the reference sequence. The BAM data are processed in chunks, sorted by the mapping position in the reference sequence of the reads. To reduce disk load the algorithm first loads all reads mapping to a fairly large region (default 1 mb; option bufferSize) into memory. Each BAM file is assumed to contain a single sample. While this approach works well for modest numbers of samples, it does not scale to large sample sizes (~1000 and up). The reason is that in order to fit all reads into memory, the region size needs to shrink as the sample size increases, increasing the number of region load operations.
 
-After the reads are read into memory, a de‐duplication step removes reads that likely represent PCR copies of the same molecule, as base‐calling or indel errors in these may otherwise be mistaken for real variants. In addition, reads having fewer than 20 high quality bases (option minGoodQualBases), defined as those with a base quality score of at least 20 (option minBaseQual), are also discarded.
+After the reads are read into memory, a de‐duplication step removes reads that likely represent PCR copies of the same molecule, as base‐calling or indel errors in these may otherwise be mistaken for real variants. In addition, reads having fewer than 20 bases (option minGoodQualBases) with a base quality score of at least 20, are also discarded.
 
 By default, reads that have low mapping quality scores (below 20; option minMapQual) are also discarded.
 
@@ -215,7 +214,9 @@ Two sources contribute to the list of candidate variants that are considered by 
 * Single‐nucleotide variants (SNVs) and short indels as reported in the CIGAR string and read sequences of the BAM files
 * Any auxiliary variants provided from a (bgzip‐compressed, tabix‐indexed) VCF file.
 
-Each of these sources is optional and controlled by the user (options: getVariantsFromBAMs; source); e.g. Platypus can be made to genotype only a list of specific alleles fed from a source VCF, while for a normal variant calling run, only variants from read alignments are used. Candidate indel variants that occur closer than 3 bp (configurable with option minFlank) to either of the read’s edges are discarded.
+By default Platypus will only consider variant candidates from the aligned reads in the BAM files, but each of these sources is optional and controlled by the user (options: getVariantsFromBAMs; source). Platypus can be made to genotype only a list of specific alleles fed from a source VCF (``--source=input.vcf.gz --getVariantsFromBAMs=0``), while for default variant calling, only variants from read alignments are used (no command-line options needed as this is default). It is also possible to use both sources, in which case Platypus will consider the union of alleles from the input VCF and the BAM (``--source=input.vcf.gz --getVariantsFromBAMs=1``). If neither source is used (``--source=None --getVariantsFromBAMs=0``) then Platypus will not call any variants.
+
+Reads with mapping qualities < minMapQual will not be used for variant detection, and bases with qualities < minBaseQual will not be used for SNP detection. Candidate indel variants that occur closer than 3 bp (configurable with option minFlank) to either of the read’s edges are discarded.
 
 
 .. _supplying_variant_candidates_from_vcf:
@@ -305,20 +306,20 @@ Platypus will only output variants with a phred-scaled posterior probability > 5
 Allele bias (ab) 
 ----------------
 
-The allele bias filter identifies variants that show support in too few reads compared to the expectation under heterozygous segregation in a diploid organism. Specifically, it rejects variants if (i) the fraction of reads supporting the variant allele is less than the minimum of 0.5 and (ii) the p value under a binomial model less than 0.001.
+The allele bias filter identifies variants that show support in too few reads compared to the expectation under heterozygous segregation in a diploid organism. Specifically, it rejects variants if (i) the fraction of reads supporting the variant allele is less than the minimum of 0.5 and (ii) the p value under a binomial model less than 0.001 (configurable with option ``--abThreshold``.
 
 
 Strand bias (sb) 
 ----------------
 
 The strand bias filter identifies variants whose support is skewed in terms of reads mapping to the forward and reverse strands, relative to the distribution seen in all reads. We use the distribution seen overall, rather than say a binomial distribution centered around a fraction of 0.5, because certain experimental designs can give rise to bona fide strand biases. Examples include exon capture, and mapping biases due to the existence of an anchoring point to one end of the sequence, but not the other.
-Specifically, the reads supporting the variant are tested against a binomial distribution where the mean of the distribution equals the ratio observed in all reads. Variants are accepted if the p value exceeds 0.001.
+Specifically, the reads supporting the variant are tested against a binomial distribution where the mean of the distribution equals the ratio observed in all reads. Variants are accepted if the p value exceeds 0.001 (configurable with option ``--sbThreshold``).
 
 
 Bad reads (badReads) 
 --------------------
 
-This filter triggers when across reads supporting a variant, the median of the minimum base quality close to the focal site (default 7 bp either side, configurable using ‐‐badReadsWindow) is too low (default 15 or less, configurable using ‐‐badReadsThreshold); this identifies systematic local sequencing issues causing an excess of read errors, which are not always accurately reflected in the read quality scores. It also triggers when more than a fraction of reads are filtered out for the candidate generation stage; the default for this is 0.7 (configurable using – filteredReadsFrac).
+This filter triggers when across reads supporting a variant, the median of the minimum base quality close to the focal site (default 7 bp either side, configurable using ‐‐badReadsWindow) is too low (default 15 or less, configurable using ‐‐badReadsThreshold); this identifies systematic local sequencing issues causing an excess of read errors, which are not always accurately reflected in the read quality scores.
 
 
 Homopolymers filter (hp10) 

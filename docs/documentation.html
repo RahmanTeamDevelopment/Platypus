@@ -88,7 +88,7 @@ and <a class="reference external" href="https://virtualenv.pypa.io/en/stable/">V
 <p>This is the simplest way to run Platypus, specifying only the names of the input BAM file and input reference files, and the output VCF file. Variant
 calls will then be outupt to a file called <cite>variant_calls.vcf</cite>.</p>
 <ul class="simple">
-<li>The input bam file should follow the <a class="reference external" href="http://samtools.github.io/hts-specs/SAMv1.pdf">BAM format</a> and should contain mapped reads sorted by genomic coordinate. Platypus has been tested using BAM files produced by <a class="reference external" href="http://www.well.ox.ac.uk/project-stampy">Stampy</a> and <a class="reference external" href="http://bio-bwa.sourceforge.net">BWA</a>, but should also work with other short read aligners. The BAM index file (.bai) should also be present in the same directory; this can be created using <a class="reference external" href="http://www.htslib.org">Samtools</a>.</li>
+<li>The input bam file should follow the <a class="reference external" href="http://samtools.github.io/hts-specs/SAMv1.pdf">BAM format</a> and should contain mapped reads sorted by genomic coordinate. Platypus has been tested using BAM files produced by <a class="reference external" href="http://www.well.ox.ac.uk/project-stampy">Stampy</a> and <a class="reference external" href="http://bio-bwa.sourceforge.net">BWA</a>, but should also work with other short read aligners. The BAM index file (.bai) should also be present in the same directory, and should have the same name as the BAM file, with <code class="docutils literal"><span class="pre">.bai</span></code> appended, e.g <code class="docutils literal"><span class="pre">data.bam</span></code> and <code class="docutils literal"><span class="pre">data.bam.bai</span></code>. The index file can be created using <a class="reference external" href="http://www.htslib.org">Samtools</a>.</li>
 </ul>
 </div>
 <div class="section" id="command-line-options">
@@ -114,52 +114,52 @@ and are already configured for optimal results. Below is a full descripton of al
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>-h &#8211;help</td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">-h</span> <span class="pre">--help</span></code></td>
 <td>NA</td>
 <td>NA</td>
-<td><cite>&#8211;help</cite></td>
+<td><code class="docutils literal"><span class="pre">--help</span></code></td>
 <td>If this option is set then Platypus will print a help message and then exit</td>
 </tr>
-<tr class="row-odd"><td>&#8211;bamFiles</td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--bamFiles</span></code></td>
 <td>Comma-separated list of strings</td>
 <td>None</td>
-<td><cite>&#8211;bamFiles=test1.bam,test2.bam</cite></td>
+<td><code class="docutils literal"><span class="pre">--bamFiles=test1.bam,test2.bam</span></code></td>
 <td>A list of BAM file names. All the specified BAM files will be searched for variants. The output will go into a single VCF file</td>
 </tr>
-<tr class="row-even"><td>&#8211;refFile</td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--refFile</span></code></td>
 <td>String</td>
 <td>None</td>
-<td><cite>&#8211;refFile=human_37.fa</cite></td>
+<td><code class="docutils literal"><span class="pre">--refFile=human_37.fa</span></code></td>
 <td>Name of the input reference FASTA file. This file must be indexed (using <cite>Samtools faidx</cite> for example) and must contain the same reference sequence that was used to map the reads in the input BAM file(s)</td>
 </tr>
-<tr class="row-odd"><td>-o &#8211;output</td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">-o</span> <span class="pre">--output</span></code></td>
 <td>String</td>
 <td>AllVariants.vcf</td>
-<td><cite>&#8211;output=variant_calls.vcf</cite></td>
+<td><code class="docutils literal"><span class="pre">--output=variant_calls.vcf</span></code></td>
 <td>Name of the output VCF file</td>
 </tr>
-<tr class="row-even"><td>&#8211;regions</td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--regions</span></code></td>
 <td>Comma-separated list of strings or the name of a text file</td>
 <td>None</td>
-<td><cite>&#8211;regions=chr1:1000-2000,chr2:2000-4000</cite></td>
+<td><code class="docutils literal"><span class="pre">--regions=chr1:1000-2000,chr2:2000-4000</span></code></td>
 <td>Platypus will produce variant calls only in the specified regions. See <a class="reference internal" href="#specifying-calling-regions"><span class="std std-ref">Specifying calling regions</span></a> for a more detailed description</td>
 </tr>
-<tr class="row-odd"><td>&#8211;verbosity</td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--verbosity</span></code></td>
 <td>Integer from 0 to 3</td>
 <td>2</td>
-<td><cite>&#8211;verbosity=3</cite></td>
+<td><code class="docutils literal"><span class="pre">--verbosity=3</span></code></td>
 <td>Sets the level of output logging for Platypus. Increase this value for more verbose log output</td>
 </tr>
-<tr class="row-even"><td>&#8211;logFileName</td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--logFileName</span></code></td>
 <td>String</td>
 <td>log.txt</td>
-<td><cite>&#8211;logFileName=platypus_log_file.txt</cite></td>
+<td><code class="docutils literal"><span class="pre">--logFileName=platypus_log_file.txt</span></code></td>
 <td>Name of the output log file.</td>
 </tr>
-<tr class="row-odd"><td>&#8211;nCPU</td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--nCPU</span></code></td>
 <td>Integer</td>
 <td>1</td>
-<td><cite>&#8211;nCPU=3</cite></td>
+<td><code class="docutils literal"><span class="pre">--nCPU=3</span></code></td>
 <td>Number of processes to use for variant calling. If &gt; 1 then Platypus will run in multiple processes and merge the VCF files into one file at the end</td>
 </tr>
 </tbody>
@@ -185,34 +185,34 @@ and are already configured for optimal results. Below is a full descripton of al
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>&#8211;processRegionSize</td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--processRegionSize</span></code></td>
 <td>Integer</td>
 <td>30,000,000</td>
-<td><cite>&#8211;processRegionSize=10000000</cite></td>
+<td><code class="docutils literal"><span class="pre">--processRegionSize=10000000</span></code></td>
 <td>Platypus breaks up the genome into regions of this size and processes them in parallel (if nCPU &gt; 1) or consecutively (if nCPU == 1)</td>
 </tr>
-<tr class="row-odd"><td>&#8211;bufferSize</td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--bufferSize</span></code></td>
 <td>Integer</td>
 <td>1,000,000</td>
-<td><cite>&#8211;bufferSize=100000</cite></td>
+<td><code class="docutils literal"><span class="pre">--bufferSize=100000</span></code></td>
 <td>The maximum size of region (per process, and as a genomic interval) that Platypus will read into memory at any point. This can be used to control memory usage</td>
 </tr>
-<tr class="row-even"><td>&#8211;maxReads</td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--maxReads</span></code></td>
 <td>Integer</td>
 <td>5,000,000</td>
-<td><cite>&#8211;maxReads=100000</cite></td>
+<td><code class="docutils literal"><span class="pre">--maxReads=100000</span></code></td>
 <td>This sets an upper limit on the amount of data that Platypus will try to process in one region. If the number of reads in a region of <cite>bufferSize</cite> is larger than this then Platypus will skip the region. This option can be used, in conjunction with <cite>bufferSize</cite> to control memory usage.</td>
 </tr>
-<tr class="row-odd"><td>&#8211;maxBadQualBases</td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--maxBadQualBases</span></code></td>
 <td>Integer</td>
 <td>20</td>
-<td><cite>&#8211;maxBadQualBases=10</cite></td>
+<td><code class="docutils literal"><span class="pre">--maxBadQualBases=10</span></code></td>
 <td>If a read has &gt; this number of bases with quality &lt; 20 then it will be filtered out and not used for variant calling.</td>
 </tr>
-<tr class="row-even"><td>&#8211;minGoodQualBases</td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--minGoodQualBases</span></code></td>
 <td>Integer</td>
 <td>20</td>
-<td><cite>&#8211;minGoodQualBases=10</cite></td>
+<td><code class="docutils literal"><span class="pre">--minGoodQualBases=10</span></code></td>
 <td>If a read has &lt; this number of bases with quality &gt;= 20 then it will be filtered out and not used for variant calling.</td>
 </tr>
 </tbody>
@@ -237,70 +237,70 @@ and are already configured for optimal results. Below is a full descripton of al
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>&#8211;genSNPs</td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--genSNPs</span></code></td>
 <td>Boolean</td>
 <td>1 (True)</td>
-<td><cite>&#8211;genSNPs=1</cite></td>
+<td><code class="docutils literal"><span class="pre">--genSNPs=1</span></code></td>
 <td>If set to 1, Platypus will call SNPs. If set to 0 Platypus will not call SNPs</td>
 </tr>
-<tr class="row-odd"><td>&#8211;genIndels</td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--genIndels</span></code></td>
 <td>Boolean</td>
 <td>1 (True)</td>
-<td><cite>&#8211;genIndels=1</cite></td>
+<td><code class="docutils literal"><span class="pre">--genIndels=1</span></code></td>
 <td>If set to 1, Platypus will call Indels. If set to 0 Platypus will not call Indels</td>
 </tr>
-<tr class="row-even"><td>&#8211;minBaseQual</td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--minBaseQual</span></code></td>
 <td>Integer</td>
 <td>20</td>
-<td><cite>&#8211;minBaseQual=25</cite></td>
+<td><code class="docutils literal"><span class="pre">--minBaseQual=25</span></code></td>
 <td>Only bases with base quality &gt;= this value will be examined when generating the initial list of SNP candidates</td>
 </tr>
-<tr class="row-odd"><td>&#8211;minMapQual</td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--minMapQual</span></code></td>
 <td>Integer</td>
 <td>20</td>
-<td><cite>&#8211;minMapQual=25</cite></td>
-<td>Only bases with base quality &gt;= this value will be examined when generating the initial list of SNP candidates</td>
+<td><code class="docutils literal"><span class="pre">--minMapQual=25</span></code></td>
+<td>Only reads with mapping quality &gt;= this value will be used for variant calling</td>
 </tr>
-<tr class="row-even"><td>&#8211;maxVariants</td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--maxVariants</span></code></td>
 <td>Integer</td>
 <td>8</td>
-<td><cite>&#8211;maxVariants=12</cite></td>
+<td><code class="docutils literal"><span class="pre">--maxVariants=12</span></code></td>
 <td>A limit on the number of variant candidates that Platypus will consider in any single window. For more detals see <a class="reference internal" href="#filtering-variant-candidates"><span class="std std-ref">Filtering variant candidates</span></a> for more details</td>
 </tr>
-<tr class="row-odd"><td>&#8211;maxHaplotypes</td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--maxHaplotypes</span></code></td>
 <td>Integer</td>
 <td>256</td>
-<td><cite>&#8211;maxHaplotypes=500</cite></td>
+<td><code class="docutils literal"><span class="pre">--maxHaplotypes=500</span></code></td>
 <td>A limit on the number of haplotpyes that Platypus will consider in any single window. For more details see <a class="reference internal" href="#generating-haplotypes"><span class="std std-ref">Generating haplotypes</span></a> for more details</td>
 </tr>
-<tr class="row-even"><td>&#8211;minReads</td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--minReads</span></code></td>
 <td>Integer</td>
 <td>1</td>
-<td><cite>&#8211;minReads=10</cite></td>
+<td><code class="docutils literal"><span class="pre">--minReads=10</span></code></td>
 <td>There must be &gt;= minReads reads with mapping quality &gt;= minMapQual supporting any variant for it to be considered. For SNPs the base qualities must be &gt;= minBaseQual</td>
 </tr>
-<tr class="row-odd"><td>&#8211;maxSize</td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--maxSize</span></code></td>
 <td>Integer</td>
 <td>250</td>
-<td><cite>&#8211;maxSize=250</cite></td>
+<td><code class="docutils literal"><span class="pre">--maxSize=250</span></code></td>
 <td>An upper limit on the size of indels that Platypus will call</td>
 </tr>
-<tr class="row-even"><td>&#8211;getVariantsFromBAMs</td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--getVariantsFromBAMs</span></code></td>
 <td>Boolean</td>
 <td>1</td>
-<td><cite>&#8211;getVariantsFromBAMs=1</cite></td>
+<td><code class="docutils literal"><span class="pre">--getVariantsFromBAMs=1</span></code></td>
 <td>If set to 0 then Playpus will not scan the BAM for variant candidates. This only makes sense if there are candidates coming from elsewhere, e.g. an input VCF of variants</td>
 </tr>
-<tr class="row-odd"><td>&#8211;strandFilter</td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--strandFilter</span></code></td>
 <td>Boolean</td>
 <td>0</td>
-<td><cite>&#8211;strandFilter=1</cite></td>
+<td><code class="docutils literal"><span class="pre">--strandFilter=1</span></code></td>
 <td>If set to 1 then Platypus will require at least 1 read on each of the forward and reverse strands in order to consider a variant candidate</td>
 </tr>
-<tr class="row-even"><td>&#8211;minFlank</td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--minFlank</span></code></td>
 <td>Integer</td>
 <td>3</td>
-<td><cite>&#8211;minFlank=10</cite></td>
+<td><code class="docutils literal"><span class="pre">--minFlank=10</span></code></td>
 <td>Any indel candidate in the BAM must have &gt;= minFlank reference-matching bases on either side of it to be considered</td>
 </tr>
 </tbody>
@@ -326,40 +326,34 @@ and are already configured for optimal results. Below is a full descripton of al
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>&#8211;minPosterior</td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--minPosterior</span></code></td>
 <td>Float</td>
 <td>5</td>
-<td><cite>&#8211;minPosterior=10</cite></td>
+<td><code class="docutils literal"><span class="pre">--minPosterior=10</span></code></td>
 <td>Only variant calls wth a posterior / QUAL value &gt;= this will be output to the VCF. This value is a <a class="reference external" href="https://en.wikipedia.org/wiki/Phred_quality_score">Phred score</a>.</td>
 </tr>
-<tr class="row-odd"><td>&#8211;sbThreshold</td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--sbThreshold</span></code></td>
 <td>Float</td>
 <td>0.01</td>
-<td><cite>&#8211;sbThreshold=0.02</cite></td>
+<td><code class="docutils literal"><span class="pre">--sbThreshold=0.02</span></code></td>
 <td>P-value threshold for the strand-bias filter. Variants with a strand-bias p-value &lt; this threshold will be flagged as <cite>sb</cite> in the VCF filter column. See <a class="reference internal" href="#filtering-variant-candidates"><span class="std std-ref">Filtering variant candidatess</span></a> for more details.</td>
 </tr>
-<tr class="row-even"><td>&#8211;abThreshold</td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--abThreshold</span></code></td>
 <td>Float</td>
 <td>0.001</td>
-<td><cite>&#8211;abThreshold=0.002</cite></td>
+<td><code class="docutils literal"><span class="pre">--abThreshold=0.002</span></code></td>
 <td>P-value threshold for the allele-bias filter. Variants with an allele-bias p-value &lt; this threshold will be flagged as <cite>ab</cite> in the VCF filter column. See <a class="reference internal" href="#filtering-variant-candidates"><span class="std std-ref">Filtering variant candidates</span></a> for more details.</td>
 </tr>
-<tr class="row-odd"><td>&#8211;minPosterior</td>
-<td>Float</td>
-<td>5</td>
-<td><cite>&#8211;minPosterior=10</cite></td>
-<td>Only variant calls wth a posterior / QUAL value &gt;= this will be output to the VCF. This value is a <a class="reference external" href="https://en.wikipedia.org/wiki/Phred_quality_score">Phred score</a>.</td>
-</tr>
-<tr class="row-even"><td>&#8211;badReadsWindow</td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--badReadsWindow</span></code></td>
 <td>Integer</td>
 <td>11</td>
-<td><cite>&#8211;badReadsWindow=7</cite></td>
+<td><code class="docutils literal"><span class="pre">--badReadsWindow=7</span></code></td>
 <td>Size of window around variant location to check for low quality bases. If the median minimum quality in this window is &lt; badReadsThreshold then the variant will be filtered with the flag &#8216;badReads&#8217; in the output VCF. See <a class="reference internal" href="#filtering-variant-candidates"><span class="std std-ref">Filtering variant candidates</span></a> for more details.</td>
 </tr>
-<tr class="row-odd"><td>&#8211;badReadsThreshold</td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--badReadsThreshold</span></code></td>
 <td>Integer</td>
 <td>15</td>
-<td><cite>&#8211;badReadsThreshold=20</cite></td>
+<td><code class="docutils literal"><span class="pre">--badReadsThreshold=20</span></code></td>
 <td>Threshold for the bad reads filter. See <a class="reference internal" href="#filtering-variant-candidates"><span class="std std-ref">Filtering variant candidates</span></a> for more details.</td>
 </tr>
 </tbody>
@@ -384,28 +378,28 @@ and are already configured for optimal results. Below is a full descripton of al
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>&#8211;source</td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--source</span></code></td>
 <td>String</td>
 <td>None</td>
-<td><cite>&#8211;source=thousand_genomes_snps.vcf.gz</cite></td>
+<td><code class="docutils literal"><span class="pre">--source=thousand_genomes_snps.vcf.gz</span></code></td>
 <td>Name of an input VCF file to be used as a source of variant candidates. See <a class="reference internal" href="#supplying-variant-candidates-from-vcf"><span class="std std-ref">Supplying variant candidates from VCF</span></a> for more details</td>
 </tr>
-<tr class="row-odd"><td>&#8211;freqAsPrior</td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--freqAsPrior</span></code></td>
 <td>Boolean</td>
 <td>0</td>
-<td><cite>&#8211;freqAsPrior=1</cite></td>
-<td>Must be used in conjunction with <cite>&#8211;source</cite>. If this is set to 1 then Platypus will use the AF tag in the input VCF as a prior on the variant. See :ref:Supplying variant candidates from VCF&lt;supplying_variant_candidates_from_vcf&gt;` for more details</td>
+<td><code class="docutils literal"><span class="pre">--freqAsPrior=1</span></code></td>
+<td>Must be used in conjunction with <code class="docutils literal"><span class="pre">--source</span></code>. If this is set to 1 then Platypus will use the AF tag in the input VCF as a prior on the variant.</td>
 </tr>
-<tr class="row-even"><td>&#8211;parseNCBI</td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--parseNCBI</span></code></td>
 <td>Boolean</td>
 <td>0</td>
-<td><cite>&#8211;parseNCBI=1</cite></td>
+<td><code class="docutils literal"><span class="pre">--parseNCBI=1</span></code></td>
 <td>This must be set to 1 if the reference file has sequence names in the NCBI format</td>
 </tr>
-<tr class="row-odd"><td>&#8211;printVarsAndExit</td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--printVarsAndExit</span></code></td>
 <td>Boolean</td>
 <td>0</td>
-<td><cite>&#8211;printVarsAndExit=1</cite></td>
+<td><code class="docutils literal"><span class="pre">--printVarsAndExit=1</span></code></td>
 <td>If set to 1, Platypus will simply print a list of all variant candidates in the calling regions, and exit without making calls</td>
 </tr>
 </tbody>
@@ -425,35 +419,35 @@ and are already configured for optimal results. Below is a full descripton of al
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>-n &#8211;nIndividuals</td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">-n</span> <span class="pre">--nIndividuals</span></code></td>
 <td>Was used to set the number of individuals in the input BAM files. Now each BAM file is assumed to contain data from only one individual</td>
 </tr>
-<tr class="row-odd"><td>-p &#8211;ploidy</td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">-p</span> <span class="pre">--ploidy</span></code></td>
 <td>Was used to set the ploidy of the samples in the BAM files. Now this is fixed at 2.</td>
 </tr>
-<tr class="row-even"><td>&#8211;dataType</td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--dataType</span></code></td>
 <td>Was used to distinguish between individual, trio and pooled sequencing datasets</td>
 </tr>
-<tr class="row-odd"><td>&#8211;maxReadLength</td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--maxReadLength</span></code></td>
 <td>Was used to limit the size of reads that Platypus would process</td>
 </tr>
-<tr class="row-even"><td>&#8211;labels</td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--labels</span></code></td>
 <td>Was used to specify how to convert BAM file names into the VCF sample column headers</td>
 </tr>
-<tr class="row-odd"><td>&#8211;callOnlyIndels</td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--callOnlyIndels</span></code></td>
 <td>If set to 1 then Platypus will only call variants in regions where there are indel candidates</td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="specifying-calling-regions">
-<span id="id3"></span><h2>4.7. Specifying calling regions<a class="headerlink" href="#specifying-calling-regions" title="Permalink to this headline">¶</a></h2>
+<span id="id2"></span><h2>4.7. Specifying calling regions<a class="headerlink" href="#specifying-calling-regions" title="Permalink to this headline">¶</a></h2>
 <p>It often useful to call variants on only a subset of the genome, e.g. a particular gene or exon. Platypus supports this mode through the <cite>&#8211;regions</cite> option. This option can be used in several ways:</p>
 <blockquote>
 <div><ul class="simple">
-<li>A comma-separated list of chromosome:start-end coordinates can be given, e.g. <cite>&#8211;regions=chr1:0-100,chr2:300-400,chrX:1000-20000</cite>. Platypus will search for variants in just these regions</li>
-<li>A comma-separated list of chromosomes can be given, e.g. <cite>&#8211;regions=chr1,chr2,chr20,chrY</cite>. Platypus will search for variants in just these chromosomes, and the lengths of the chromosomes will be taken from either the BAM file header or the reference FASTA file index</li>
-<li>A text file name may be specified, e.g. <cite>&#8211;regions=my_regions.txt</cite>. This file must contain only lines with the format <cite>chrom:start-end</cite>, e.g. <cite>chr1:1000-20000</cite> with one region per line.</li>
+<li>A comma-separated list of chromosome:start-end coordinates can be given, e.g. <code class="docutils literal"><span class="pre">--regions=chr1:0-100,chr2:300-400,chrX:1000-20000</span></code>. Platypus will search for variants in just these regions</li>
+<li>A comma-separated list of chromosomes can be given, e.g. <code class="docutils literal"><span class="pre">--regions=chr1,chr2,chr20,chrY</span></code>. Platypus will search for variants in just these chromosomes, and the lengths of the chromosomes will be taken from either the BAM file header or the reference FASTA file index</li>
+<li>A text file name may be specified, e.g. <code class="docutils literal"><span class="pre">--regions=my_regions.txt</span></code>. This file must contain only lines with the format <code class="docutils literal"><span class="pre">chrom:start-end</span></code>, e.g. <code class="docutils literal"><span class="pre">chr1:1000-20000</span></code> with one region per line.</li>
 <li>If no regions are specified then Platypus will call variants across the whole genome. It will check the BAM header file and the reference FASTA file to determine the list of chromosomes and other contigs, as well as their lengths</li>
 </ul>
 </div></blockquote>
@@ -477,7 +471,7 @@ and are already configured for optimal results. Below is a full descripton of al
 <div class="section" id="read-processing">
 <h2>5.1. Read processing<a class="headerlink" href="#read-processing" title="Permalink to this headline">¶</a></h2>
 <p>Platypus takes as input one or more BAM files containing reads mapped to a reference genome, and an indexed FASTA file of the reference sequence. The BAM data are processed in chunks, sorted by the mapping position in the reference sequence of the reads. To reduce disk load the algorithm first loads all reads mapping to a fairly large region (default 1 mb; option bufferSize) into memory. Each BAM file is assumed to contain a single sample. While this approach works well for modest numbers of samples, it does not scale to large sample sizes (~1000 and up). The reason is that in order to fit all reads into memory, the region size needs to shrink as the sample size increases, increasing the number of region load operations.</p>
-<p>After the reads are read into memory, a de‐duplication step removes reads that likely represent PCR copies of the same molecule, as base‐calling or indel errors in these may otherwise be mistaken for real variants. In addition, reads having fewer than 20 high quality bases (option minGoodQualBases), defined as those with a base quality score of at least 20 (option minBaseQual), are also discarded.</p>
+<p>After the reads are read into memory, a de‐duplication step removes reads that likely represent PCR copies of the same molecule, as base‐calling or indel errors in these may otherwise be mistaken for real variants. In addition, reads having fewer than 20 bases (option minGoodQualBases) with a base quality score of at least 20, are also discarded.</p>
 <p>By default, reads that have low mapping quality scores (below 20; option minMapQual) are also discarded.</p>
 </div>
 <div class="section" id="construction-of-candidate-variants">
@@ -487,7 +481,8 @@ and are already configured for optimal results. Below is a full descripton of al
 <li>Single‐nucleotide variants (SNVs) and short indels as reported in the CIGAR string and read sequences of the BAM files</li>
 <li>Any auxiliary variants provided from a (bgzip‐compressed, tabix‐indexed) VCF file.</li>
 </ul>
-<p>Each of these sources is optional and controlled by the user (options: getVariantsFromBAMs; source); e.g. Platypus can be made to genotype only a list of specific alleles fed from a source VCF, while for a normal variant calling run, only variants from read alignments are used. Candidate indel variants that occur closer than 3 bp (configurable with option minFlank) to either of the read’s edges are discarded.</p>
+<p>By default Platypus will only consider variant candidates from the aligned reads in the BAM files, but each of these sources is optional and controlled by the user (options: getVariantsFromBAMs; source). Platypus can be made to genotype only a list of specific alleles fed from a source VCF (<code class="docutils literal"><span class="pre">--source=input.vcf.gz</span> <span class="pre">--getVariantsFromBAMs=0</span></code>), while for default variant calling, only variants from read alignments are used (no command-line options needed as this is default). It is also possible to use both sources, in which case Platypus will consider the union of alleles from the input VCF and the BAM (<code class="docutils literal"><span class="pre">--source=input.vcf.gz</span> <span class="pre">--getVariantsFromBAMs=1</span></code>). If neither source is used (<code class="docutils literal"><span class="pre">--source=None</span> <span class="pre">--getVariantsFromBAMs=0</span></code>) then Platypus will not call any variants.</p>
+<p>Reads with mapping qualities &lt; minMapQual will not be used for variant detection, and bases with qualities &lt; minBaseQual will not be used for SNP detection. Candidate indel variants that occur closer than 3 bp (configurable with option minFlank) to either of the read’s edges are discarded.</p>
 <div class="section" id="candidate-variants-from-vcf-files">
 <span id="supplying-variant-candidates-from-vcf"></span><h3>5.2.1. Candidate variants from VCF files<a class="headerlink" href="#candidate-variants-from-vcf-files" title="Permalink to this headline">¶</a></h3>
 <p>When a VCF file is provided as input, Platypus collects all variants listed in it, independent of genotype or filter status, and adds these to the list of candidate variants.</p>
@@ -540,16 +535,16 @@ and are already configured for optimal results. Below is a full descripton of al
 <p>Platypus will only output variants with a phred-scaled posterior probability &gt; 5. In addition, a number of soft filters are applied on a per‐variant basis, with corresponding flags in the <cite>FILTER</cite> column of the output VCF.:</p>
 <div class="section" id="allele-bias-ab">
 <h3>5.8.1. Allele bias (ab)<a class="headerlink" href="#allele-bias-ab" title="Permalink to this headline">¶</a></h3>
-<p>The allele bias filter identifies variants that show support in too few reads compared to the expectation under heterozygous segregation in a diploid organism. Specifically, it rejects variants if (i) the fraction of reads supporting the variant allele is less than the minimum of 0.5 and (ii) the p value under a binomial model less than 0.001.</p>
+<p>The allele bias filter identifies variants that show support in too few reads compared to the expectation under heterozygous segregation in a diploid organism. Specifically, it rejects variants if (i) the fraction of reads supporting the variant allele is less than the minimum of 0.5 and (ii) the p value under a binomial model less than 0.001 (configurable with option <code class="docutils literal"><span class="pre">--abThreshold</span></code>.</p>
 </div>
 <div class="section" id="strand-bias-sb">
 <h3>5.8.2. Strand bias (sb)<a class="headerlink" href="#strand-bias-sb" title="Permalink to this headline">¶</a></h3>
 <p>The strand bias filter identifies variants whose support is skewed in terms of reads mapping to the forward and reverse strands, relative to the distribution seen in all reads. We use the distribution seen overall, rather than say a binomial distribution centered around a fraction of 0.5, because certain experimental designs can give rise to bona fide strand biases. Examples include exon capture, and mapping biases due to the existence of an anchoring point to one end of the sequence, but not the other.
-Specifically, the reads supporting the variant are tested against a binomial distribution where the mean of the distribution equals the ratio observed in all reads. Variants are accepted if the p value exceeds 0.001.</p>
+Specifically, the reads supporting the variant are tested against a binomial distribution where the mean of the distribution equals the ratio observed in all reads. Variants are accepted if the p value exceeds 0.001 (configurable with option <code class="docutils literal"><span class="pre">--sbThreshold</span></code>).</p>
 </div>
 <div class="section" id="bad-reads-badreads">
 <h3>5.8.3. Bad reads (badReads)<a class="headerlink" href="#bad-reads-badreads" title="Permalink to this headline">¶</a></h3>
-<p>This filter triggers when across reads supporting a variant, the median of the minimum base quality close to the focal site (default 7 bp either side, configurable using ‐‐badReadsWindow) is too low (default 15 or less, configurable using ‐‐badReadsThreshold); this identifies systematic local sequencing issues causing an excess of read errors, which are not always accurately reflected in the read quality scores. It also triggers when more than a fraction of reads are filtered out for the candidate generation stage; the default for this is 0.7 (configurable using – filteredReadsFrac).</p>
+<p>This filter triggers when across reads supporting a variant, the median of the minimum base quality close to the focal site (default 7 bp either side, configurable using ‐‐badReadsWindow) is too low (default 15 or less, configurable using ‐‐badReadsThreshold); this identifies systematic local sequencing issues causing an excess of read errors, which are not always accurately reflected in the read quality scores.</p>
 </div>
 <div class="section" id="homopolymers-filter-hp10">
 <h3>5.8.4. Homopolymers filter (hp10)<a class="headerlink" href="#homopolymers-filter-hp10" title="Permalink to this headline">¶</a></h3>
